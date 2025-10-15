@@ -127,9 +127,9 @@ ccai.use-test-environment=false
 #### SMS Basic Usage
 
 ```kotlin
-import com.cloudcontactai.ccai.CCAIClient
-import com.cloudcontactai.ccai.common.CCAIConfig
-import com.cloudcontactai.ccai.sms.Account
+import com.cloudcontactai.sdk.CCAIClient
+import com.cloudcontactai.sdk.common.CCAIConfig
+import com.cloudcontactai.sdk.sms.Account
 
 // Initialize the client
 val config = CCAIConfig(
@@ -178,7 +178,7 @@ ccai.close()
 #### Email Usage
 
 ```kotlin
-import com.cloudcontactai.ccai.email.EmailAccount
+import com.cloudcontactai.sdk.email.EmailAccount
 
 // Send a single email
 val response = ccai.email.sendSingle(
@@ -217,7 +217,7 @@ println("Email campaign sent with ID: ${campaignResponse.id}")
 #### Webhook Management
 
 ```kotlin
-import com.cloudcontactai.ccai.webhook.WebhookRequest
+import com.cloudcontactai.sdk.webhook.WebhookRequest
 
 // Create a webhook
 val webhookRequest = WebhookRequest(
@@ -241,9 +241,9 @@ println("Webhook test successful: ${testResult.success}")
 ### Java Usage
 
 ```java
-import com.cloudcontactai.ccai.CCAIClient;
-import com.cloudcontactai.ccai.common.CCAIConfig;
-import com.cloudcontactai.ccai.sms.SMSResponse;
+import com.cloudcontactai.sdk.CCAIClient;
+import com.cloudcontactai.sdk.common.CCAIConfig;
+import com.cloudcontactai.sdk.sms.SMSResponse;
 
 // Initialize the client
 CCAIConfig config = new CCAIConfig(

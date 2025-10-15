@@ -1,4 +1,4 @@
-package com.cloudcontactai.ccai.webhook
+package com.cloudcontactai.sdk.webhook
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

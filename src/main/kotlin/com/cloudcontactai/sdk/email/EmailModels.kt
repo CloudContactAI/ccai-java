@@ -1,4 +1,4 @@
-package com.cloudcontactai.ccai.email
+package com.cloudcontactai.sdk.email
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty

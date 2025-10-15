@@ -1,7 +1,7 @@
-package com.cloudcontactai.ccai.webhook
+package com.cloudcontactai.sdk.webhook
 
-import com.cloudcontactai.ccai.common.ApiClient
-import com.cloudcontactai.ccai.common.CCAIConfig
+import com.cloudcontactai.sdk.common.ApiClient
+import com.cloudcontactai.sdk.common.CCAIConfig
 
 class WebhookService(private val config: CCAIConfig, private val apiClient: ApiClient) {
     

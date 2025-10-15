@@ -1,7 +1,7 @@
-package com.cloudcontactai.ccai.email
+package com.cloudcontactai.sdk.email
 
-import com.cloudcontactai.ccai.common.ApiClient
-import com.cloudcontactai.ccai.common.CCAIConfig
+import com.cloudcontactai.sdk.common.ApiClient
+import com.cloudcontactai.sdk.common.CCAIConfig
 
 class EmailService(private val config: CCAIConfig, private val apiClient: ApiClient) {
     

@@ -1,9 +1,9 @@
 // Copyright (c) 2025 CloudContactAI LLC
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-package com.cloudcontactai.ccai
+package com.cloudcontactai.sdk
 
-import com.cloudcontactai.ccai.common.CCAIConfig
+import com.cloudcontactai.sdk.common.CCAIConfig
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertNotNull

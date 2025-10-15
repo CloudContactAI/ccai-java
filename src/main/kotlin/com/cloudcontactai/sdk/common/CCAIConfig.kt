@@ -1,7 +1,7 @@
 // Copyright (c) 2025 CloudContactAI LLC
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-package com.cloudcontactai.ccai.common
+package com.cloudcontactai.sdk.common
 
 /**
  * Configuration for the CCAI client

@@ -1,10 +1,10 @@
-package com.cloudcontactai.ccai
+package com.cloudcontactai.sdk
 
-import com.cloudcontactai.ccai.common.ApiClient
-import com.cloudcontactai.ccai.common.CCAIConfig
-import com.cloudcontactai.ccai.sms.SMSService
-import com.cloudcontactai.ccai.email.EmailService
-import com.cloudcontactai.ccai.webhook.WebhookService
+import com.cloudcontactai.sdk.common.ApiClient
+import com.cloudcontactai.sdk.common.CCAIConfig
+import com.cloudcontactai.sdk.sms.SMSService
+import com.cloudcontactai.sdk.email.EmailService
+import com.cloudcontactai.sdk.webhook.WebhookService
 
 class CCAIClient(private val config: CCAIConfig) {
     private val apiClient = ApiClient(config)

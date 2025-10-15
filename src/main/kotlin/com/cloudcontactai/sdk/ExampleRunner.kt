@@ -1,7 +1,9 @@
-package com.cloudcontactai.ccai
+package com.cloudcontactai.sdk
 
-import com.cloudcontactai.ccai.common.CCAIConfig
-import com.cloudcontactai.ccai.webhook.WebhookRequest
+import com.cloudcontactai.sdk.common.CCAIConfig
+import com.cloudcontactai.sdk.sms.Account
+import com.cloudcontactai.sdk.email.EmailAccount
+import com.cloudcontactai.sdk.webhook.WebhookRequest
 
 fun main() {
     val config = CCAIConfig(
@@ -19,13 +21,13 @@ fun main() {
             firstName = "John",
             lastName = "Doe",
             phone = "+15551234567",
-            message = "Hello \${firstName}, this is a test message from CCAI JAVA SDK!",
+            message = "Hello John, this is a test message from CCAI SDK!",
             title = "Test SMS Campaign"
         )
         println("SMS sent with ID: ${smsResponse.id}")
         
         println("\n=== Email Examples ===")
-
+        
         val emailResponse = ccai.email.sendSingle(
             firstName = "John",
             lastName = "Doe",
@@ -42,7 +44,7 @@ fun main() {
             """.trimIndent()
         )
         println("Email sent with ID: ${emailResponse.id}")
-
+        
         println("\n=== Webhook Examples ===")
         
         val webhookRequest = WebhookRequest(
@@ -53,7 +55,7 @@ fun main() {
         
         val webhook = ccai.webhook.create(webhookRequest)
         println("Webhook created with ID: ${webhook.id}")
-
+        
     } catch (e: Exception) {
         println("Error: ${e.message}")
         e.printStackTrace()

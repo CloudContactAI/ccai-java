@@ -1,7 +1,7 @@
-package com.cloudcontactai.ccai.sms
+package com.cloudcontactai.sdk.sms
 
-import com.cloudcontactai.ccai.common.ApiClient
-import com.cloudcontactai.ccai.common.CCAIConfig
+import com.cloudcontactai.sdk.common.ApiClient
+import com.cloudcontactai.sdk.common.CCAIConfig
 
 class SMSService(private val config: CCAIConfig, private val apiClient: ApiClient) {
     
