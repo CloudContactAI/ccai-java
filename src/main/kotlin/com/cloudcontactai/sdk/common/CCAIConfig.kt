@@ -26,8 +26,8 @@ data class CCAIConfig(
      * Base URL for the SMS/MMS API
      */
     val baseUrl: String = if (useTestEnvironment) {
-        System.getenv("CCAI_BASE_URL")?.replace("core.cloudcontactai.com", "core-test.cloudcontactai.com") 
-            ?: "https://core-test.cloudcontactai.com/api"
+        System.getenv("CCAI_BASE_URL")?.replace("core.cloudcontactai.com", "core-test-cloudcontactai.allcode.com")
+            ?: "https://core-test-cloudcontactai.allcode.com/api"
     } else {
         System.getenv("CCAI_BASE_URL") ?: "https://core.cloudcontactai.com/api"
     }
@@ -36,8 +36,8 @@ data class CCAIConfig(
      * Base URL for the Email API
      */
     val emailBaseUrl: String = if (useTestEnvironment) {
-        System.getenv("CCAI_EMAIL_BASE_URL")?.replace("email-campaigns.cloudcontactai.com", "email-campaigns-test.cloudcontactai.com")
-            ?: "https://email-campaigns-test.cloudcontactai.com/api/v1"
+        System.getenv("CCAI_EMAIL_BASE_URL")?.replace("email-campaigns.cloudcontactai.com", "email-campaigns-test-cloudcontactai.allcode.com")
+            ?: "https://email-campaigns-test-cloudcontactai.allcode.com/api/v1"
     } else {
         System.getenv("CCAI_EMAIL_BASE_URL") ?: "https://email-campaigns.cloudcontactai.com/api/v1"
     }
@@ -46,8 +46,8 @@ data class CCAIConfig(
      * Base URL for the Auth API
      */
     val authBaseUrl: String = if (useTestEnvironment) {
-        System.getenv("CCAI_AUTH_BASE_URL")?.replace("auth.cloudcontactai.com", "auth-test.cloudcontactai.com")
-            ?: "https://auth-test.cloudcontactai.com"
+        System.getenv("CCAI_AUTH_BASE_URL")?.replace("auth.cloudcontactai.com", "auth-test-cloudcontactai.allcode.com")
+            ?: "https://auth-test-cloudcontactai.allcode.com"
     } else {
         System.getenv("CCAI_AUTH_BASE_URL") ?: "https://auth.cloudcontactai.com"
     }

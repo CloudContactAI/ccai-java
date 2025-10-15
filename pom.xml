@@ -10,7 +10,7 @@
     
     <name>CCAI Java SDK</name>
     <description>Java SDK for CloudContactAI API</description>
-    <url>https://github.com/cloudcontactai/ccai-java-sdk</url>
+    <url>https://github.com/cloudcontactai/ccai-java</url>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -162,8 +162,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/cloudcontactai/ccai-java-sdk.git</connection>
-        <developerConnection>scm:git:ssh://github.com:cloudcontactai/ccai-java-sdk.git</developerConnection>
-        <url>https://github.com/cloudcontactai/ccai-java-sdk/tree/main</url>
+        <connection>scm:git:git://github.com/cloudcontactai/ccai-java.git</connection>
+        <developerConnection>scm:git:ssh://github.com:cloudcontactai/ccai-java.git</developerConnection>
+        <url>https://github.com/cloudcontactai/ccai-java/tree/main</url>
     </scm>
 </project>

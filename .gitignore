@@ -25,6 +25,13 @@ replay_pid*
 
 # Maven
 target/
+release/
+deployment/
+central-bundle/
+*.zip
+*.asc
+gpg-private-key.asc
+gpg-public-key.asc
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
