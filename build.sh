@@ -13,7 +13,7 @@ echo "Compiling Java sources..."
 find src/main/java -name "*.java" > sources.txt
 
 if [ -s sources.txt ]; then
-    javac -cp ".:src/main/resources" -d target/classes @sources.txt
+    javac --enable-preview --release 13 -cp ".:src/main/resources" -d target/classes @sources.txt
     if [ $? -eq 0 ]; then
         echo "✅ Compilation successful!"
     else
