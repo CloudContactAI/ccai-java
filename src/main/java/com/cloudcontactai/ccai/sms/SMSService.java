@@ -75,13 +75,20 @@ public class SMSService {
         try {
             config.validate();
 
-            String url = config.getBaseUrl() + "/sms/send";
+            String url = config.getEffectiveBaseUrl() + "/clients/" + config.getClientId() + "/campaigns/direct";
             HttpHeaders headers = createHeaders();
-            HttpEntity<SMSRequest> entity = new HttpEntity<>(request, headers);
+            
+            // Convert SMSRequest to SMSCampaign format
+            List<SMSCampaign.Account> accounts = request.getPhoneNumbers().stream()
+                .map(phone -> new SMSCampaign.Account("", "", phone))
+                .collect(java.util.stream.Collectors.toList());
+            
+            SMSCampaign campaign = new SMSCampaign(accounts, request.getMessage(), "SMS Campaign", null);
+            HttpEntity<SMSCampaign> entity = new HttpEntity<>(campaign, headers);
 
             if (config.isDebugMode()) {
                 logger.debug("Sending SMS request to: {}", url);
-                logger.debug("Request payload: {}", objectMapper.writeValueAsString(request));
+                logger.debug("Request payload: {}", objectMapper.writeValueAsString(campaign));
             }
 
             ResponseEntity<SMSResponse> response = restTemplate.exchange(

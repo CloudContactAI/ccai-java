@@ -77,7 +77,7 @@ public class EmailService {
         try {
             config.validate();
 
-            String url = config.getEmailBaseUrl() + "/api/email/send";
+            String url = config.getEffectiveEmailBaseUrl() + "/api/email/send";
             HttpHeaders headers = createHeaders();
             HttpEntity<EmailRequest> entity = new HttpEntity<>(request, headers);
 

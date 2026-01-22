@@ -53,9 +53,7 @@ Create a `.env` file in your project root or set environment variables:
 ```bash
 CCAI_CLIENT_ID=1231
 CCAI_API_KEY=your-api-key-here
-CCAI_BASE_URL=https://core.cloudcontactai.com/api
-CCAI_EMAIL_BASE_URL=https://email-campaigns.cloudcontactai.com
-CCAI_AUTH_BASE_URL=https://auth.cloudcontactai.com
+CCAI_USE_TEST_ENVIRONMENT=false
 ```
 
 ### Application Properties
@@ -65,9 +63,7 @@ Add to your `application.properties`:
 ```properties
 ccai.client-id=${CCAI_CLIENT_ID}
 ccai.api-key=${CCAI_API_KEY}
-ccai.base-url=${CCAI_BASE_URL:https://core.cloudcontactai.com/api}
-ccai.email-base-url=${CCAI_EMAIL_BASE_URL:https://email-campaigns.cloudcontactai.com}
-ccai.auth-base-url=${CCAI_AUTH_BASE_URL:https://auth.cloudcontactai.com}
+ccai.use-test-environment=${CCAI_USE_TEST_ENVIRONMENT:false}
 ccai.debug-mode=false
 ccai.timeout-ms=30000
 ccai.max-retries=3
@@ -157,6 +153,79 @@ future.thenAccept(response -> {
     System.err.println("Async SMS failed: " + throwable.getMessage());
     return null;
 });
+```
+
+### MMS Basic Usage
+
+```java
+import com.cloudcontactai.ccai.mms.Account;
+import java.util.Arrays;
+import java.util.List;
+
+// Create recipient accounts
+List<Account> accounts = Arrays.asList(
+    new Account("John", "Doe", "+1234567890"),
+    new Account("Jane", "Smith", "+0987654321")
+);
+
+// Upload image and send MMS in one step
+SMSResponse response = client.getMmsService().sendWithImage(
+    "/path/to/image.jpg",
+    "image/jpeg",
+    accounts,
+    "Check out this image!",
+    "MMS Campaign"
+);
+
+System.out.println("MMS sent: " + response.getCampaignId());
+```
+
+### MMS Step-by-Step
+
+```java
+import com.cloudcontactai.ccai.mms.SignedUploadUrlResponse;
+
+// Step 1: Get signed upload URL
+SignedUploadUrlResponse uploadUrl = client.getMmsService()
+    .getSignedUploadUrl("myimage.png", "image/png");
+
+// Step 2: Upload the image
+boolean uploaded = client.getMmsService()
+    .uploadImageToSignedUrl(uploadUrl.getSignedS3Url(), "/path/to/image.png", "image/png");
+
+if (uploaded) {
+    // Step 3: Send MMS with the uploaded image
+    List<Account> accounts = Arrays.asList(
+        new Account("John", "Doe", "+1234567890")
+    );
+    
+    SMSResponse response = client.getMmsService().send(
+        uploadUrl.getFileKey(),
+        accounts,
+        "Hello ${firstName}, check out this image!",
+        "MMS Campaign"
+    );
+    
+    System.out.println("MMS sent: " + response.getCampaignId());
+}
+```
+
+### MMS Single Recipient
+
+```java
+// Send MMS to a single recipient with a pre-uploaded image
+String pictureFileKey = "1254/campaign/myimage.jpg";
+
+SMSResponse response = client.getMmsService().sendSingle(
+    pictureFileKey,
+    "John",
+    "Doe",
+    "+1234567890",
+    "Hello ${firstName}, check out this image!",
+    "Single MMS Campaign"
+);
+
+System.out.println("MMS sent: " + response.getCampaignId());
 ```
 
 ### Email Basic Usage

@@ -5,6 +5,7 @@ package com.cloudcontactai.ccai.client;
 
 import com.cloudcontactai.ccai.config.CCAIConfig;
 import com.cloudcontactai.ccai.email.EmailService;
+import com.cloudcontactai.ccai.mms.MMSService;
 import com.cloudcontactai.ccai.sms.SMSService;
 import com.cloudcontactai.ccai.webhook.WebhookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,6 +26,7 @@ public class CCAIClient {
 
     private final CCAIConfig config;
     private final SMSService smsService;
+    private final MMSService mmsService;
     private final EmailService emailService;
     private final WebhookService webhookService;
     private final RestTemplate restTemplate;
@@ -40,6 +42,7 @@ public class CCAIClient {
         this.objectMapper = createObjectMapper();
         this.restTemplate = createRestTemplate();
         this.smsService = new SMSService(config, restTemplate, objectMapper);
+        this.mmsService = new MMSService(config, restTemplate, objectMapper);
         this.emailService = new EmailService(config, restTemplate, objectMapper);
         this.webhookService = new WebhookService(objectMapper);
         
@@ -64,6 +67,15 @@ public class CCAIClient {
      */
     public SMSService getSmsService() {
         return smsService;
+    }
+
+    /**
+     * Gets the MMS service for sending MMS messages
+     *
+     * @return MMSService instance
+     */
+    public MMSService getMmsService() {
+        return mmsService;
     }
 
     /**

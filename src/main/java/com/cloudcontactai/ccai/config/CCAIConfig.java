@@ -140,6 +140,33 @@ public class CCAIConfig {
     }
 
     /**
+     * Get the appropriate base URL based on environment
+     */
+    public String getEffectiveBaseUrl() {
+        return useTestEnvironment 
+            ? getEnvOrDefault("CCAI_TEST_BASE_URL", "https://core-test-cloudcontactai.allcode.com/api")
+            : baseUrl;
+    }
+    
+    /**
+     * Get the appropriate email base URL based on environment
+     */
+    public String getEffectiveEmailBaseUrl() {
+        return useTestEnvironment 
+            ? getEnvOrDefault("CCAI_TEST_EMAIL_BASE_URL", "https://email-campaigns-test-cloudcontactai.allcode.com")
+            : emailBaseUrl;
+    }
+    
+    /**
+     * Get the appropriate auth base URL based on environment
+     */
+    public String getEffectiveAuthBaseUrl() {
+        return useTestEnvironment 
+            ? getEnvOrDefault("CCAI_TEST_AUTH_BASE_URL", "https://auth-test-cloudcontactai.allcode.com")
+            : authBaseUrl;
+    }
+
+    /**
      * Validates the configuration
      */
     public void validate() {
