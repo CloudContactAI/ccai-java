@@ -154,6 +154,12 @@ future.thenAccept(response -> {
     return null;
 });
 ```
+###MMS Best Results
+For best results
+Images:
+- Resize to 800×600 or 1024×768
+- JPEG at 70–80% quality
+- Size Limits: 300–600 KB is the sweet spot. > 1 MB is risky
 
 ### MMS Basic Usage
 
