@@ -5,16 +5,19 @@ A Kotlin/Java client library for interacting with the [CloudContactAI](https://c
 ## Features
 
 - Send SMS messages to single or multiple recipients
+- Send MMS messages with images to single or multiple recipients
 - Send Email campaigns to single or multiple recipients
 - Manage webhooks for event notifications
+- Webhook signature validation for security
 - Variable substitution in messages
+- Test environment support
 - Comprehensive error handling
 - Spring Boot integration support
 
 ## Requirements
 
 - Java 11 or higher
-- Kotlin 1.7.0 or higher (if using Kotlin)
+- Kotlin 1.9.0 or higher (if using Kotlin)
 
 ## Installation
 
@@ -26,7 +29,7 @@ Add this dependency to your `pom.xml`:
 <dependency>
     <groupId>com.cloudcontactai</groupId>
     <artifactId>ccai-java-sdk</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -35,7 +38,7 @@ Add this dependency to your `pom.xml`:
 Add this dependency to your `build.gradle`:
 
 ```gradle
-implementation 'com.cloudcontactai:ccai-java-sdk:1.0.0'
+implementation 'com.cloudcontactai:ccai-java-sdk:1.0.1'
 ```
 
 ## Configuration
@@ -45,6 +48,7 @@ Set environment variables or pass configuration directly:
 ```bash
 export CCAI_CLIENT_ID=1231
 export CCAI_API_KEY=your-api-key-here
+export CCAI_USE_TEST_ENVIRONMENT=false
 ```
 
 ## Usage
@@ -214,6 +218,71 @@ val campaignResponse = ccai.email.send(
 println("Email campaign sent with ID: ${campaignResponse.id}")
 ```
 
+#### MMS Usage
+
+##### Image Recommendations
+
+For optimal MMS delivery and performance:
+
+**Dimensions:**
+- Recommended: 640px × 1138px (9:16 aspect ratio)
+- Alternative: 1080px × 1920px (9:16 aspect ratio)
+- Format: Portrait or square orientation preferred
+
+**File Size:**
+- Target: ~200 KB (optimal for speed and deliverability)
+- Maximum: 1 MB
+- Use image compression tools to reduce file size while maintaining quality
+
+**Supported Formats:**
+- JPEG (recommended)
+- PNG
+- GIF
+
+**Best Practice:** Keep images under 500 KB with 640×1138px dimensions for optimal compatibility and performance.
+
+##### Code Examples
+
+```kotlin
+import com.cloudcontactai.sdk.mms.Account
+import java.io.File
+
+// Send MMS with automatic image upload
+val mmsAccounts = listOf(
+    Account(
+        firstName = "John",
+        lastName = "Doe",
+        phone = "+15551234567"
+    )
+)
+
+val imageFile = File("path/to/image.jpg")
+val mmsResponse = ccai.mms.sendWithImage(
+    accounts = mmsAccounts,
+    message = "Check out this image!",
+    title = "MMS Campaign",
+    imageFile = imageFile
+)
+
+println("MMS sent with ID: ${mmsResponse.campaignId}")
+
+// Manual upload process (advanced)
+val uploadRequest = SignedUploadUrlRequest(
+    fileName = "image.jpg",
+    fileType = "image/jpeg"
+)
+
+val uploadResponse = ccai.mms.getSignedUploadUrl(uploadRequest)
+ccai.mms.uploadImageToSignedUrl(uploadResponse.signedS3Url, imageFile, "image/jpeg")
+
+val mmsResponse2 = ccai.mms.send(
+    accounts = mmsAccounts,
+    message = "Another MMS!",
+    title = "MMS Campaign 2",
+    pictureFileKey = uploadResponse.fileKey
+)
+```
+
 #### Webhook Management
 
 ```kotlin
@@ -223,11 +292,22 @@ import com.cloudcontactai.sdk.webhook.WebhookRequest
 val webhookRequest = WebhookRequest(
     url = "https://your-app.com/webhooks/ccai",
     events = listOf("sms.sent", "sms.delivered", "email.opened"),
-    isActive = true
+    isActive = true,
+    secret = "your-webhook-secret"
 )
 
 val webhook = ccai.webhook.create(webhookRequest)
 println("Webhook created with ID: ${webhook.id}")
+
+// Validate webhook signature
+val payload = """{"eventType":"sms.sent","messageId":"123"}"""
+val signature = request.getHeader("X-CCAI-Signature")
+val isValid = ccai.webhook.validateWebhookSignature(payload, signature, "your-webhook-secret")
+
+if (isValid) {
+    val event = ccai.webhook.parseWebhookEvent(payload)
+    println("Event type: ${event.eventType}")
+}
 
 // Get all webhooks
 val webhooks = ccai.webhook.getAll()

@@ -6,7 +6,7 @@ package com.cloudcontactai.sdk.common
 /**
  * Configuration for the CCAI client
  */
-data class CCAIConfig(
+data class CCAIConfig @JvmOverloads constructor(
     /**
      * Client ID for authentication
      */
@@ -20,7 +20,22 @@ data class CCAIConfig(
     /**
      * Whether to use test environment URLs
      */
-    val useTestEnvironment: Boolean = false
+    val useTestEnvironment: Boolean = false,
+
+    /**
+     * Enable debug mode for detailed logging
+     */
+    val debugMode: Boolean = false,
+
+    /**
+     * Maximum number of retry attempts for failed requests
+     */
+    val maxRetries: Int = 3,
+
+    /**
+     * Request timeout in milliseconds
+     */
+    val timeoutMs: Long = 30000
 ) {
     /**
      * Base URL for the SMS/MMS API
@@ -55,5 +70,7 @@ data class CCAIConfig(
     init {
         require(clientId.isNotBlank()) { "Client ID cannot be blank" }
         require(apiKey.isNotBlank()) { "API key cannot be blank" }
+        require(maxRetries >= 0) { "Max retries must be non-negative" }
+        require(timeoutMs > 0) { "Timeout must be positive" }
     }
 }

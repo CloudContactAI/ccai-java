@@ -23,7 +23,7 @@ jar cf ../central-bundle/com/cloudcontactai/ccai-java-sdk/1.0.1/ccai-java-sdk-1.
 cd ..
 rm -rf temp-javadoc
 
-cd central-bundle/com/cloudcontactai/ccai-java-sdk/1.0.1
+cd central-bundle/com/cloudcontactai/ccai-java-sdk/1.0.2
 
 echo "Generating checksums and signatures..."
 for file in *.jar *.pom; do

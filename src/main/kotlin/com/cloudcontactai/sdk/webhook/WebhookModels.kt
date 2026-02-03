@@ -30,3 +30,19 @@ data class WebhookTestResponse(
     @JsonProperty("response") val response: String? = null,
     @JsonProperty("error") val error: String? = null
 )
+
+data class WebhookEvent(
+    @JsonProperty("eventType") val eventType: String,
+    @JsonProperty("timestamp") val timestamp: String,
+    @JsonProperty("campaignId") val campaignId: String?,
+    @JsonProperty("messageId") val messageId: String?,
+    @JsonProperty("phoneNumber") val phoneNumber: String?,
+    @JsonProperty("email") val email: String?,
+    @JsonProperty("status") val status: String?,
+    @JsonProperty("errorCode") val errorCode: String?,
+    @JsonProperty("errorMessage") val errorMessage: String?,
+    @JsonProperty("customData") val customData: Map<String, Any>?,
+    @JsonProperty("deliveryStatus") val deliveryStatus: String?,
+    @JsonProperty("cost") val cost: Double?,
+    @JsonProperty("accountId") val accountId: String?
+)
