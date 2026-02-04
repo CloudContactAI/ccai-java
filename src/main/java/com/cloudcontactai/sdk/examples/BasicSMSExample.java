@@ -6,7 +6,6 @@ import com.cloudcontactai.sdk.sms.Account;
 import com.cloudcontactai.sdk.sms.SMSResponse;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -24,14 +23,11 @@ public class BasicSMSExample {
             System.exit(1);
         }
 
-        // Create CCAI client with optional debug mode
+        // Create CCAI client with optional test environment
         CCAIConfig config = new CCAIConfig(
             clientId,
             apiKey,
-            false,  // useTestEnvironment
-            true,   // debugMode
-            3,      // maxRetries
-            30000   // timeoutMs
+            false  // useTestEnvironment - set to true for testing
         );
         
         CCAIClient client = new CCAIClient(config);
@@ -45,31 +41,24 @@ public class BasicSMSExample {
                 "+15551234567",
                 "Hello from CCAI Java SDK! This is a test message.",
                 "Test Campaign",
-                null  // optional sender phone
+                null  // optional variables map
             );
-            System.out.println("SMS sent! Campaign ID: " + response1.getCampaignId());
-            System.out.println("Message ID: " + response1.getId());
+            System.out.println("SMS sent! ID: " + response1.getId());
 
             // Example 2: Send SMS to multiple recipients
             System.out.println("\nSending SMS to multiple recipients...");
             List<Account> accounts = Arrays.asList(
-                new Account("John", "Doe", "+15551234567", new HashMap<>()),
-                new Account("Jane", "Smith", "+15559876543", new HashMap<>())
+                new Account("John", "Doe", "+15551234567"),
+                new Account("Jane", "Smith", "+15559876543")
             );
             
             SMSResponse response2 = client.getSms().send(
                 accounts,
                 "Hello everyone! This is a bulk SMS message.",
                 "Bulk Campaign",
-                null  // optional sender phone
+                null  // optional variables map
             );
-            System.out.println("Bulk SMS sent! Campaign ID: " + response2.getCampaignId());
-
-            // Example 3: Get campaign status
-            System.out.println("\nGetting campaign status...");
-            var status = client.getSms().getCampaignStatus(response1.getCampaignId());
-            System.out.println("Campaign Status: " + status.getStatus());
-            System.out.println("Sent Messages: " + status.getSentMessages());
+            System.out.println("Bulk SMS sent! ID: " + response2.getId());
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

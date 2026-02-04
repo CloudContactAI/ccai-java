@@ -2,6 +2,8 @@ package com.cloudcontactai.sdk.mms
 
 import com.cloudcontactai.sdk.common.ApiClient
 import com.cloudcontactai.sdk.common.CCAIConfig
+import com.cloudcontactai.sdk.common.CCAIException
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -10,14 +12,45 @@ import java.io.File
 
 class MMSService(private val config: CCAIConfig, private val apiClient: ApiClient) {
     private val httpClient = OkHttpClient()
+    private val objectMapper = jacksonObjectMapper()
 
     fun getSignedUploadUrl(request: SignedUploadUrlRequest): SignedUploadUrlResponse {
-        return apiClient.request(
-            method = "POST",
-            endpoint = "/clients/${config.clientId}/files/signed-upload-url",
-            data = request,
-            responseClass = SignedUploadUrlResponse::class.java
+        val url = "${config.filesBaseUrl}/upload/url"
+        
+        // Use default fileBasePath if not provided
+        val fileBasePath = request.fileBasePath ?: "${config.clientId}/campaign"
+        
+        // Construct the fileKey as clientId/campaign/filename
+        val fileKey = "${config.clientId}/campaign/${request.fileName}"
+        
+        val requestData = SignedUploadUrlRequest(
+            fileName = request.fileName,
+            fileType = request.fileType,
+            fileBasePath = fileBasePath,
+            publicFile = request.publicFile
         )
+        
+        val jsonBody = objectMapper.writeValueAsString(requestData)
+        val requestBody = jsonBody.toRequestBody("application/json".toMediaType())
+        
+        val httpRequest = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .addHeader("Authorization", "Bearer ${config.apiKey}")
+            .addHeader("Content-Type", "application/json")
+            .build()
+
+        httpClient.newCall(httpRequest).execute().use { response ->
+            if (!response.isSuccessful) {
+                throw CCAIException("HTTP ${response.code}: ${response.body?.string() ?: ""}")
+            }
+            
+            val responseBody = response.body?.string() ?: throw CCAIException("Empty response body")
+            val uploadResponse = objectMapper.readValue(responseBody, SignedUploadUrlResponse::class.java)
+            
+            // Override fileKey with our constructed one since API doesn't return it
+            return uploadResponse.copy(fileKey = fileKey)
+        }
     }
 
     fun uploadImageToSignedUrl(signedUrl: String, imageFile: File, contentType: String = "image/jpeg") {
@@ -54,7 +87,7 @@ class MMSService(private val config: CCAIConfig, private val apiClient: ApiClien
 
         return apiClient.request(
             method = "POST",
-            endpoint = "/clients/${config.clientId}/campaigns/mms",
+            endpoint = "/clients/${config.clientId}/campaigns/direct",
             data = campaign,
             responseClass = MMSResponse::class.java
         )
@@ -96,6 +129,9 @@ class MMSService(private val config: CCAIConfig, private val apiClient: ApiClien
         val uploadResponse = getSignedUploadUrl(uploadRequest)
         uploadImageToSignedUrl(uploadResponse.signedS3Url, imageFile, contentType)
 
-        return send(accounts, message, title, uploadResponse.fileKey, senderPhone)
+        // Extract the S3 URL without query parameters
+        val s3Url = uploadResponse.signedS3Url.substringBefore("?")
+        
+        return send(accounts, message, title, s3Url, senderPhone)
     }
 }

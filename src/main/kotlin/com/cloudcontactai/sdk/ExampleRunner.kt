@@ -43,7 +43,8 @@ fun main() {
                         <p>Best regards,<br>The CCAI Team</p>
                     </body>
                 </html>
-            """.trimIndent()
+            """.trimIndent(),
+            textContent = null
         )
         println("Email sent with ID: ${emailResponse.id}")
         
@@ -59,9 +60,11 @@ fun main() {
                 accounts = mmsAccounts,
                 message = "Check out this image!",
                 title = "MMS Test Campaign",
-                imageFile = imageFile
+                imageFile = imageFile,
+                senderPhone = null
             )
-            println("MMS sent with ID: ${mmsResponse.campaignId}")
+            val responseId = mmsResponse.campaignId ?: mmsResponse.id
+            println("MMS sent with ID: $responseId")
         } else {
             println("Skipping MMS example - test-image.jpg not found")
         }

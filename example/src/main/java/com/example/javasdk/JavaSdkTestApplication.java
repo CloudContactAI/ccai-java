@@ -1,8 +1,9 @@
 package com.example.javasdk;
 
-import com.cloudcontactai.ccai.client.CCAIClient;
-import com.cloudcontactai.ccai.config.CCAIConfig;
-import com.cloudcontactai.ccai.sms.SMSResponse;
+import com.cloudcontactai.sdk.CCAIClient;
+import com.cloudcontactai.sdk.common.CCAIConfig;
+import com.cloudcontactai.sdk.sms.SMSResponse;
+import com.cloudcontactai.sdk.mms.MMSResponse;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -79,29 +80,45 @@ public class JavaSdkTestApplication implements CommandLineRunner {
             return;
         }
         
-        CCAIConfig config = new CCAIConfig(clientId, apiKey);
-        config.setUseTestEnvironment(true);
+        CCAIConfig config = new CCAIConfig(clientId, apiKey, true);
         CCAIClient client = new CCAIClient(config);
         
         try {
-            // Get the image from resources
-            String imagePath = JavaSdkTestApplication.class.getClassLoader()
-                .getResource("CloudContactAI.png").getPath();
+            // Get the image from resources as InputStream and write to temp file
+            java.io.InputStream imageStream = JavaSdkTestApplication.class.getClassLoader()
+                .getResourceAsStream("CloudContactAI.png");
+            
+            if (imageStream == null) {
+                throw new RuntimeException("CloudContactAI.png not found in resources");
+            }
+            
+            // Create temp file
+            java.io.File tempFile = java.io.File.createTempFile("mms-image-", ".png");
+            tempFile.deleteOnExit();
+            
+            // Copy stream to temp file
+            java.nio.file.Files.copy(imageStream, tempFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            imageStream.close();
             
             // Upload and send MMS with the image
-            List<com.cloudcontactai.ccai.mms.Account> accounts = new java.util.ArrayList<>();
-            accounts.add(new com.cloudcontactai.ccai.mms.Account("John", "Doe", "+14158906431"));
+            List<com.cloudcontactai.sdk.mms.Account> accounts = new java.util.ArrayList<>();
+            com.cloudcontactai.sdk.mms.Account account = new com.cloudcontactai.sdk.mms.Account("John", "Doe", "+14158906431");
+            accounts.add(account);
             
-            SMSResponse response = client.getMmsService().sendWithImage(
-                imagePath,
-                "image/png",
+            MMSResponse response = client.getMms().sendWithImage(
                 accounts,
-                "Test MMS with CloudContactAI logo",
-                "Test MMS Campaign"
+                "Testing with my CloudContactAI logo2",
+                "Test my MMS Campaign2",
+                tempFile,
+                null
             );
-            System.out.println("MMS sent successfully");
+            
+            String status = (response != null && (response.getCampaignId() != null || response.getId() != null)) ? "PASS" : "FAIL";
+            String responseId = response != null ? (response.getCampaignId() != null ? response.getCampaignId() : response.getId()) : "N/A";
+            System.out.println(String.format("MMS Test Result: %s | Name: %s %s | Phone: %s | Response ID: %s", 
+                status, account.getFirstName(), account.getLastName(), account.getPhone(), responseId));
         } catch (Exception e) {
-            System.out.println("MMS failed: " + e.getMessage());
+            System.out.println(String.format("MMS Test Result: FAIL | Error: %s", e.getMessage()));
             e.printStackTrace();
         }
     }
@@ -117,15 +134,22 @@ public class JavaSdkTestApplication implements CommandLineRunner {
             return;
         }
         
-        CCAIConfig config = new CCAIConfig(clientId, apiKey);
-        config.setUseTestEnvironment(true);
+        CCAIConfig config = new CCAIConfig(clientId, apiKey, true);
         CCAIClient client = new CCAIClient(config);
         
+        String firstName = "John";
+        String lastName = "Doe";
+        String phone = "+14158906431";
+        
         try {
-            client.getSmsService().sendSMS("+14158906431", "Test SMS from Java SDK");
-            System.out.println("SMS sent successfully");
+            SMSResponse response = client.getSms().sendSingle(firstName, lastName, phone, "Test SMS from Java SDK", "Test SMS Campaign", null);
+            String status = (response != null && response.getId() != null) ? "PASS" : "FAIL";
+            System.out.println(String.format("SMS Test Result: %s | Name: %s %s | Phone: %s | Response ID: %s", 
+                status, firstName, lastName, phone, 
+                response != null ? response.getId() : "N/A"));
         } catch (Exception e) {
-            System.out.println("SMS failed: " + e.getMessage());
+            System.out.println(String.format("SMS Test Result: FAIL | Name: %s %s | Phone: %s | Error: %s", 
+                firstName, lastName, phone, e.getMessage()));
         }
     }
 }

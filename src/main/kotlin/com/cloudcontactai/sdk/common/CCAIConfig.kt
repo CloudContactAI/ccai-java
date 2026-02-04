@@ -67,6 +67,16 @@ data class CCAIConfig @JvmOverloads constructor(
         System.getenv("CCAI_AUTH_BASE_URL") ?: "https://auth.cloudcontactai.com"
     }
     
+    /**
+     * Base URL for the Files API (MMS uploads)
+     */
+    val filesBaseUrl: String = if (useTestEnvironment) {
+        System.getenv("CCAI_FILES_BASE_URL")?.replace("files.cloudcontactai.com", "files-test-cloudcontactai.allcode.com")
+            ?: "https://files-test-cloudcontactai.allcode.com"
+    } else {
+        System.getenv("CCAI_FILES_BASE_URL") ?: "https://files.cloudcontactai.com"
+    }
+    
     init {
         require(clientId.isNotBlank()) { "Client ID cannot be blank" }
         require(apiKey.isNotBlank()) { "API key cannot be blank" }

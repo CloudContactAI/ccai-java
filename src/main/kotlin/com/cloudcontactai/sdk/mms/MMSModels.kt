@@ -1,5 +1,7 @@
 package com.cloudcontactai.sdk.mms
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
 data class Account(
     val firstName: String,
     val lastName: String,
@@ -14,16 +16,18 @@ data class MMSCampaign(
     val senderPhone: String? = null
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class MMSResponse(
-    val success: Boolean,
-    val message: String,
-    val campaignId: String,
-    val sentCount: Int,
-    val failedCount: Int,
-    val failedNumbers: List<String>?,
-    val timestamp: String,
-    val cost: Double?,
-    val errorCode: String?
+    val success: Boolean? = null,
+    val message: String? = null,
+    val campaignId: String? = null,
+    val sentCount: Int? = null,
+    val failedCount: Int? = null,
+    val failedNumbers: List<String>? = null,
+    val timestamp: String? = null,
+    val cost: Double? = null,
+    val errorCode: String? = null,
+    val id: String? = null
 )
 
 data class SignedUploadUrlRequest(
@@ -35,5 +39,5 @@ data class SignedUploadUrlRequest(
 
 data class SignedUploadUrlResponse(
     val signedS3Url: String,
-    val fileKey: String
+    val fileKey: String? = null
 )

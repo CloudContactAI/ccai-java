@@ -16,7 +16,7 @@ A Kotlin/Java client library for interacting with the [CloudContactAI](https://c
 
 ## Requirements
 
-- Java 11 or higher
+- Java 17 or higher
 - Kotlin 1.9.0 or higher (if using Kotlin)
 
 ## Installation
@@ -29,7 +29,7 @@ Add this dependency to your `pom.xml`:
 <dependency>
     <groupId>com.cloudcontactai</groupId>
     <artifactId>ccai-java-sdk</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -38,7 +38,7 @@ Add this dependency to your `pom.xml`:
 Add this dependency to your `build.gradle`:
 
 ```gradle
-implementation 'com.cloudcontactai:ccai-java-sdk:1.0.1'
+implementation 'com.cloudcontactai:ccai-java-sdk:1.0.3'
 ```
 
 ## Configuration
@@ -247,7 +247,7 @@ For optimal MMS delivery and performance:
 import com.cloudcontactai.sdk.mms.Account
 import java.io.File
 
-// Send MMS with automatic image upload
+// Send MMS with automatic image upload (recommended)
 val mmsAccounts = listOf(
     Account(
         firstName = "John",
@@ -264,23 +264,9 @@ val mmsResponse = ccai.mms.sendWithImage(
     imageFile = imageFile
 )
 
-println("MMS sent with ID: ${mmsResponse.campaignId}")
-
-// Manual upload process (advanced)
-val uploadRequest = SignedUploadUrlRequest(
-    fileName = "image.jpg",
-    fileType = "image/jpeg"
-)
-
-val uploadResponse = ccai.mms.getSignedUploadUrl(uploadRequest)
-ccai.mms.uploadImageToSignedUrl(uploadResponse.signedS3Url, imageFile, "image/jpeg")
-
-val mmsResponse2 = ccai.mms.send(
-    accounts = mmsAccounts,
-    message = "Another MMS!",
-    title = "MMS Campaign 2",
-    pictureFileKey = uploadResponse.fileKey
-)
+// Response ID may be in campaignId or id field
+val responseId = mmsResponse.campaignId ?: mmsResponse.id
+println("MMS sent with ID: ${responseId}")
 ```
 
 #### Webhook Management
@@ -329,10 +315,7 @@ import com.cloudcontactai.sdk.sms.SMSResponse;
 CCAIConfig config = new CCAIConfig(
     System.getenv("CCAI_CLIENT_ID"),
     System.getenv("CCAI_API_KEY"),
-    "https://core.cloudcontactai.com/api",
-    "https://email-campaigns.cloudcontactai.com",
-    "https://auth.cloudcontactai.com",
-    false
+    false  // useTestEnvironment
 );
 
 CCAIClient ccai = new CCAIClient(config);
@@ -344,7 +327,7 @@ SMSResponse response = ccai.getSms().sendSingle(
     "+15551234567",
     "Hello John, this is a test message!",
     "Test Campaign",
-    null
+    null  // optional sender phone
 );
 
 System.out.println("Message sent with ID: " + response.getId());
@@ -358,10 +341,16 @@ The `CCAIConfig` class supports the following options:
 
 - `clientId`: Your CCAI client ID (required)
 - `apiKey`: Your CCAI API key (required)
-- `baseUrl`: Base URL for SMS API (default: production URL)
-- `emailBaseUrl`: Base URL for Email API (default: production URL)
-- `authBaseUrl`: Base URL for Auth API (default: production URL)
 - `useTestEnvironment`: Whether to use test environment URLs (default: false)
+- `debugMode`: Enable debug logging (default: false)
+- `maxRetries`: Maximum retry attempts for failed requests (default: 3)
+- `timeoutMs`: Request timeout in milliseconds (default: 30000)
+
+The SDK automatically configures the following URLs based on `useTestEnvironment`:
+- `baseUrl`: SMS/MMS API endpoint
+- `emailBaseUrl`: Email API endpoint
+- `authBaseUrl`: Authentication API endpoint
+- `filesBaseUrl`: File upload API endpoint (for MMS)
 
 ## Error Handling
 
