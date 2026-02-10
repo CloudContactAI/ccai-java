@@ -123,7 +123,8 @@ class MMSService(private val config: CCAIConfig, private val apiClient: ApiClien
 
         val uploadRequest = SignedUploadUrlRequest(
             fileName = imageFile.name,
-            fileType = contentType
+            fileType = contentType,
+            publicFile = true
         )
 
         val uploadResponse = getSignedUploadUrl(uploadRequest)
