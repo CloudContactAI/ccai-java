@@ -120,19 +120,15 @@ class MMSService(private val config: CCAIConfig, private val apiClient: ApiClien
             "gif" -> "image/gif"
             else -> "image/jpeg"
         }
-
+        val fileName = "${System.currentTimeMillis()}_${imageFile.name}"
         val uploadRequest = SignedUploadUrlRequest(
-            fileName = imageFile.name,
+            fileName = fileName,
             fileType = contentType,
             publicFile = true
         )
-
+        val fileKey = "${config.clientId}/campaign/${fileName}"
         val uploadResponse = getSignedUploadUrl(uploadRequest)
         uploadImageToSignedUrl(uploadResponse.signedS3Url, imageFile, contentType)
-
-        // Extract the S3 URL without query parameters
-        val s3Url = uploadResponse.signedS3Url.substringBefore("?")
-        
-        return send(accounts, message, title, s3Url, senderPhone)
+        return send(accounts, message, title, fileKey, senderPhone)
     }
 }
