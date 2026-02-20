@@ -27,7 +27,8 @@ data class MMSResponse(
     val timestamp: String? = null,
     val cost: Double? = null,
     val errorCode: String? = null,
-    val id: String? = null
+    val id: String? = null,
+    val responseId: String? = null
 )
 
 data class SignedUploadUrlRequest(

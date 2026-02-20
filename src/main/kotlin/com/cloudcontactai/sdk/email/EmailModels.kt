@@ -33,7 +33,8 @@ data class EmailResponse(
     @JsonProperty("id") val id: String,
     @JsonProperty("campaignId") val campaignId: String? = null,
     @JsonProperty("status") val status: String,
-    @JsonProperty("message") val message: String? = null
+    @JsonProperty("message") val message: String? = null,
+    @JsonProperty("responseId") val responseId: String? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

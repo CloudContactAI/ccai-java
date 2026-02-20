@@ -44,7 +44,8 @@ class SMSServiceTest {
                 "id": "msg-123",
                 "campaignId": "campaign-123",
                 "status": "sent",
-                "message": "SMS sent successfully"
+                "message": "SMS sent successfully",
+                "responseId": "resp-123"
             }
         """.trimIndent()
         
@@ -64,6 +65,7 @@ class SMSServiceTest {
         assertEquals("campaign-123", response.campaignId)
         assertEquals("msg-123", response.id)
         assertEquals("sent", response.status)
+        assertEquals("resp-123", response.responseId)
     }
     
     @Test
@@ -73,7 +75,8 @@ class SMSServiceTest {
                 "id": "msg-456",
                 "campaignId": "campaign-456",
                 "status": "sent",
-                "message": "Bulk SMS sent successfully"
+                "message": "Bulk SMS sent successfully",
+                "responseId": "resp-456"
             }
         """.trimIndent()
         
@@ -95,6 +98,7 @@ class SMSServiceTest {
         
         assertEquals("campaign-456", response.campaignId)
         assertEquals("msg-456", response.id)
+        assertEquals("resp-456", response.responseId)
     }
     
     @Test
