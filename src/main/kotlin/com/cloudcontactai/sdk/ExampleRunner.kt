@@ -23,7 +23,7 @@ fun main() {
             message = "Hello John, this is a test message from CCAI SDK!",
             title = "Test SMS Campaign"
         )
-        println("SMS sent with ID: ${smsResponse.id}")
+        println("SMS sent with response ID:${smsResponse.responseId} and campaign ID: ${smsResponse.id}")
         
         println("\n=== Email Examples ===")
         
@@ -43,7 +43,7 @@ fun main() {
             """.trimIndent(),
             textContent = null
         )
-        println("Email sent with ID: ${emailResponse.id}")
+        println("Email sent with response ID:${emailResponse.responseId} and campaign ID: ${emailResponse.id}")
         
         println("\n=== MMS Examples ===")
         
@@ -60,8 +60,7 @@ fun main() {
                 imageFile = imageFile,
                 senderPhone = null
             )
-            val responseId = mmsResponse.campaignId ?: mmsResponse.id
-            println("MMS sent with ID: $responseId")
+            println("MMS sent with response ID:${mmsResponse.responseId} and campaign ID: ${mmsResponse.id}")
         } else {
             println("Skipping MMS example - test-image.jpg not found")
         }
