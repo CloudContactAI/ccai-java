@@ -1,9 +1,6 @@
 package com.cloudcontactai.sdk
 
 import com.cloudcontactai.sdk.common.CCAIConfig
-import com.cloudcontactai.sdk.sms.Account
-import com.cloudcontactai.sdk.email.EmailAccount
-import com.cloudcontactai.sdk.webhook.WebhookRequest
 import com.cloudcontactai.sdk.mms.Account as MMSAccount
 import java.io.File
 
@@ -68,25 +65,6 @@ fun main() {
         } else {
             println("Skipping MMS example - test-image.jpg not found")
         }
-        
-        println("\n=== Webhook Examples ===")
-        
-        val webhookRequest = WebhookRequest(
-            url = "https://your-app.com/webhooks/ccai",
-            events = listOf("sms.sent", "sms.delivered", "email.opened", "email.clicked"),
-            isActive = true,
-            secret = "your-webhook-secret"
-        )
-        
-        val webhook = ccai.webhook.create(webhookRequest)
-        println("Webhook created with ID: ${webhook.id}")
-        
-        // Demonstrate signature validation
-        val testPayload = """{"eventType":"sms.sent","messageId":"123"}"""
-        val testSignature = "test-signature"
-        val isValid = ccai.webhook.validateWebhookSignature(testPayload, testSignature, "your-webhook-secret")
-        println("Webhook signature validation: $isValid")
-        
     } catch (e: Exception) {
         println("Error: ${e.message}")
         e.printStackTrace()

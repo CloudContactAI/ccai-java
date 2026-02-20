@@ -275,33 +275,25 @@ println("MMS sent with ID: ${responseId}")
 import com.cloudcontactai.sdk.webhook.WebhookRequest
 
 // Create a webhook
-val webhookRequest = WebhookRequest(
-    url = "https://your-app.com/webhooks/ccai",
-    events = listOf("sms.sent", "sms.delivered", "email.opened"),
-    isActive = true,
-    secret = "your-webhook-secret"
-)
-
-val webhook = ccai.webhook.create(webhookRequest)
+val webhook = ccai.webhook.create(WebhookRequest("https://your-app.com/webhooks/ccai"))
 println("Webhook created with ID: ${webhook.id}")
+println("URL: ${webhook.url}")
 
-// Validate webhook signature
-val payload = """{"eventType":"sms.sent","messageId":"123"}"""
-val signature = request.getHeader("X-CCAI-Signature")
-val isValid = ccai.webhook.validateWebhookSignature(payload, signature, "your-webhook-secret")
-
-if (isValid) {
-    val event = ccai.webhook.parseWebhookEvent(payload)
-    println("Event type: ${event.eventType}")
+// Get the webhook
+val webhookDetails = ccai.webhook.get()
+webhookDetails?.let {
+    println("Current webhook URL: ${it.url}")
+    println("Method: ${it.method}")
 }
 
-// Get all webhooks
-val webhooks = ccai.webhook.getAll()
-println("Total webhooks: ${webhooks.size}")
+// Update webhook
+val updated = ccai.webhook.update(WebhookRequest("https://your-app.com/webhooks/ccai-updated"))
+println("Webhook updated to: ${updated.url}")
 
-// Test webhook
-val testResult = ccai.webhook.test(webhook.id)
-println("Webhook test successful: ${testResult.success}")
+// Parse webhook event (for incoming webhook calls)
+val payload = """{"eventType":"sms.sent","messageId":"123"}"""
+val event = ccai.webhook.parseWebhookEvent(payload)
+println("Event type: ${event.eventType}")
 ```
 
 ### Java Usage
