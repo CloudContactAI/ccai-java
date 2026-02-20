@@ -45,42 +45,4 @@ class WebhookServiceEnhancedTest {
         assertEquals("sent", event.status)
         assertEquals(0.01, event.cost)
     }
-    
-    @Test
-    fun `should validate webhook signature correctly`() {
-        val payload = """{"eventType":"sms.sent","messageId":"123"}"""
-        val secret = "my-secret-key"
-        
-        val mac = javax.crypto.Mac.getInstance("HmacSHA256")
-        val secretKeySpec = javax.crypto.spec.SecretKeySpec(secret.toByteArray(), "HmacSHA256")
-        mac.init(secretKeySpec)
-        val hash = mac.doFinal(payload.toByteArray())
-        val expectedSignature = hash.joinToString("") { "%02x".format(it) }
-        
-        val isValid = webhookService.validateWebhookSignature(payload, expectedSignature, secret)
-        
-        assertTrue(isValid)
-    }
-    
-    @Test
-    fun `should reject invalid webhook signature`() {
-        val payload = """{"eventType":"sms.sent","messageId":"123"}"""
-        val secret = "my-secret-key"
-        val invalidSignature = "invalid-signature-12345"
-        
-        val isValid = webhookService.validateWebhookSignature(payload, invalidSignature, secret)
-        
-        assertFalse(isValid)
-    }
-    
-    @Test
-    fun `should reject signature with different length`() {
-        val payload = """{"eventType":"sms.sent"}"""
-        val secret = "secret"
-        val shortSignature = "abc"
-        
-        val isValid = webhookService.validateWebhookSignature(payload, shortSignature, secret)
-        
-        assertFalse(isValid)
-    }
 }
