@@ -44,7 +44,8 @@ class EmailServiceTest {
                 "id": "email-123",
                 "campaignId": "campaign-123",
                 "status": "sent",
-                "message": "Email sent successfully"
+                "message": "Email sent successfully",
+                "responseId": "resp-email-123"
             }
         """.trimIndent()
         
@@ -63,6 +64,7 @@ class EmailServiceTest {
         
         assertEquals("email-123", response.id)
         assertEquals("sent", response.status)
+        assertEquals("resp-email-123", response.responseId)
     }
     
     @Test
@@ -72,7 +74,8 @@ class EmailServiceTest {
                 "id": "email-456",
                 "campaignId": "campaign-456",
                 "status": "sent",
-                "message": "Emails sent successfully"
+                "message": "Emails sent successfully",
+                "responseId": "resp-email-456"
             }
         """.trimIndent()
         
@@ -94,6 +97,7 @@ class EmailServiceTest {
         
         assertEquals("email-456", response.id)
         assertEquals("sent", response.status)
+        assertEquals("resp-email-456", response.responseId)
     }
     
     @Test

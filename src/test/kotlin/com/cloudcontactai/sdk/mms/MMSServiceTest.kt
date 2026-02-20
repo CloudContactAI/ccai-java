@@ -76,7 +76,8 @@ class MMSServiceTest {
                 "failedNumbers": null,
                 "timestamp": "2026-02-02T22:00:00Z",
                 "cost": 0.05,
-                "errorCode": null
+                "errorCode": null,
+                "responseId": "resp-mms-123"
             }
         """.trimIndent()
         
@@ -99,6 +100,7 @@ class MMSServiceTest {
         assertEquals("mms-campaign-123", response.campaignId)
         assertEquals(1, response.sentCount)
         assertTrue(response.success == true)
+        assertEquals("resp-mms-123", response.responseId)
     }
     
     @Test
@@ -113,7 +115,8 @@ class MMSServiceTest {
                 "failedNumbers": null,
                 "timestamp": "2026-02-02T22:00:00Z",
                 "cost": 0.05,
-                "errorCode": null
+                "errorCode": null,
+                "responseId": "resp-mms-single-123"
             }
         """.trimIndent()
         
@@ -133,6 +136,7 @@ class MMSServiceTest {
         
         assertEquals("mms-single-123", response.campaignId)
         assertTrue(response.success == true)
+        assertEquals("resp-mms-single-123", response.responseId)
     }
     
     @Test
