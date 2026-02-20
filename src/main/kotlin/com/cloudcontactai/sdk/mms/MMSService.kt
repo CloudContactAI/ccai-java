@@ -9,6 +9,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.io.FileInputStream
+import java.security.MessageDigest
 
 class MMSService(private val config: CCAIConfig, private val apiClient: ApiClient) {
     private val httpClient = OkHttpClient()
@@ -113,22 +115,57 @@ class MMSService(private val config: CCAIConfig, private val apiClient: ApiClien
         imageFile: File,
         senderPhone: String? = null
     ): MMSResponse {
+        val md5Image = md5(imageFile)
         val extension = imageFile.extension.lowercase()
+        val fileName = "${md5Image}.${extension}"
+        val fileKey = "${config.clientId}/campaign/${fileName}"
+
+        //Check if the same image has already been uploaded
+        val storedUrlResponse = checkFileUploaded(fileKey)
+        if(storedUrlResponse.storedUrl.isNotEmpty()){
+            return send(accounts, message, title, fileKey, senderPhone)
+        }
+
         val contentType = when (extension) {
             "jpg", "jpeg" -> "image/jpeg"
             "png" -> "image/png"
             "gif" -> "image/gif"
             else -> "image/jpeg"
         }
-        val fileName = "${System.currentTimeMillis()}_${imageFile.name}"
         val uploadRequest = SignedUploadUrlRequest(
             fileName = fileName,
             fileType = contentType,
             publicFile = true
         )
-        val fileKey = "${config.clientId}/campaign/${fileName}"
         val uploadResponse = getSignedUploadUrl(uploadRequest)
         uploadImageToSignedUrl(uploadResponse.signedS3Url, imageFile, contentType)
         return send(accounts, message, title, fileKey, senderPhone)
+    }
+
+    private fun md5(file: File): String {
+        val digest = MessageDigest.getInstance("MD5")
+        FileInputStream(file).use { fis ->
+            val buffer = ByteArray(8192)
+            var bytesRead: Int
+
+            while (fis.read(buffer).also { bytesRead = it } != -1) {
+                digest.update(buffer, 0, bytesRead)
+            }
+        }
+
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    fun checkFileUploaded(fileKey: String):StoredUrlResponse{
+        return try {
+            apiClient.request(
+                method = "GET",
+                endpoint = "/clients/${config.clientId}/storedUrl?fileKey=${fileKey}",
+                responseClass = StoredUrlResponse::class.java
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            StoredUrlResponse("")
+        }
     }
 }

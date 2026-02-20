@@ -134,4 +134,22 @@ class MMSServiceTest {
         assertEquals("mms-single-123", response.campaignId)
         assertTrue(response.success == true)
     }
+    
+    @Test
+    fun `should check if file is uploaded and return stored URL`() {
+        val responseJson = """
+            {
+                "storedUrl": "https://s3.amazonaws.com/bucket/test-client/campaign/image.jpg"
+            }
+        """.trimIndent()
+        
+        mockServer.enqueue(MockResponse()
+            .setResponseCode(200)
+            .setBody(responseJson)
+            .addHeader("Content-Type", "application/json"))
+        
+        val response = client.mms.checkFileUploaded("test-client/campaign/image.jpg")
+        
+        assertEquals("https://s3.amazonaws.com/bucket/test-client/campaign/image.jpg", response.storedUrl)
+    }
 }

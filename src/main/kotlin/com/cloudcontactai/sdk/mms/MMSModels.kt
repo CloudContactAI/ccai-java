@@ -41,3 +41,7 @@ data class SignedUploadUrlResponse(
     val signedS3Url: String,
     val fileKey: String? = null
 )
+
+data class StoredUrlResponse(
+    val storedUrl: String
+)
