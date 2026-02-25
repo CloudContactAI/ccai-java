@@ -2,6 +2,7 @@ package com.cloudcontactai.sdk
 
 import com.cloudcontactai.sdk.common.ApiClient
 import com.cloudcontactai.sdk.common.CCAIConfig
+import com.cloudcontactai.sdk.contact.ContactService
 import com.cloudcontactai.sdk.sms.SMSService
 import com.cloudcontactai.sdk.email.EmailService
 import com.cloudcontactai.sdk.webhook.WebhookService
@@ -14,6 +15,7 @@ class CCAIClient(private val config: CCAIConfig) {
     val email = EmailService(config, apiClient)
     val webhook = WebhookService(config, apiClient)
     val mms = MMSService(config, apiClient)
+    val contact = ContactService(config, apiClient)
     
     fun close() {
         // Cleanup resources if needed

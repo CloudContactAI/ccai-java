@@ -57,7 +57,9 @@ class ApiClient(config: CCAIConfig) {
         
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                throw CCAIException("HTTP ${response.code}: ${response.message}")
+                val errorBody = response.body?.string() ?: ""
+                val error = "${response.message} $errorBody"
+                throw CCAIException("HTTP ${response.code}: $error")
             }
             
             val responseBody = response.body?.string() ?: ""
