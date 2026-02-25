@@ -65,6 +65,23 @@ fun main() {
         } else {
             println("Skipping MMS example - test-image.jpg not found")
         }
+
+        println("\n=== Contact Do Not Text Example ===")
+        /*println("\nDo Not Text By contact ID")
+
+        var doNotContactResponse = ccai.contact.setDoNotText(
+            contactId = "613b086b5d7d4dee0723f7f6",
+            doNotText = true
+        )
+        println("Contact marked as do not text, phone: ${doNotContactResponse.phone}")
+        */
+        println("\nDo Not Text by phone")
+
+        val doNotContactResponse = ccai.contact.setDoNotText(
+            phone = "+12345678901",
+            doNotText = true
+        )
+        println("Contact marked as do not text, contact ID: ${doNotContactResponse.contactId}")
     } catch (e: Exception) {
         println("Error: ${e.message}")
         e.printStackTrace()
