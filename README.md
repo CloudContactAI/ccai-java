@@ -274,26 +274,60 @@ println("MMS sent with ID: ${responseId}")
 ```kotlin
 import com.cloudcontactai.sdk.webhook.WebhookRequest
 
-// Create a webhook
+// Create a webhook (auto-generated secret)
 val webhook = ccai.webhook.create(WebhookRequest("https://your-app.com/webhooks/ccai"))
 println("Webhook created with ID: ${webhook.id}")
 println("URL: ${webhook.url}")
+println("Secret Key: ${webhook.secretKey}")
+
+// Create a webhook with custom secret
+val customWebhook = ccai.webhook.create(
+    WebhookRequest("https://your-app.com/webhooks/ccai", "my-custom-secret-32chars12345")
+)
+println("Webhook created with custom secret!")
 
 // Get the webhook
 val webhookDetails = ccai.webhook.get()
 webhookDetails?.let {
     println("Current webhook URL: ${it.url}")
     println("Method: ${it.method}")
+    println("Secret Key: ${it.secretKey}")
 }
 
 // Update webhook
-val updated = ccai.webhook.update(WebhookRequest("https://your-app.com/webhooks/ccai-updated"))
+val updated = ccai.webhook.update(
+    WebhookRequest("https://your-app.com/webhooks/ccai-updated", "my-custom-secret-32chars12345")
+)
 println("Webhook updated to: ${updated.url}")
 
-// Parse webhook event (for incoming webhook calls)
-val payload = """{"eventType":"sms.sent","messageId":"123"}"""
+// Validate CloudContactAI webhook signature (using eventHash)
+val payload = """
+{
+    "eventType": "sms.sent",
+    "data": {
+        "id": 12345,
+        "MessageStatus": "sent",
+        "To": "+15551234567",
+        "Message": "Hello World"
+    },
+    "eventHash": "abc123def456ghi789jkl012mno345pq"
+}
+"""
+val signature = request.getHeader("X-CCAI-Signature")
 val event = ccai.webhook.parseWebhookEvent(payload)
-println("Event type: ${event.eventType}")
+
+val isValid = ccai.webhook.validateSignature(
+    signature,
+    webhook.secretKey!!,
+    config.clientId.toLong(),
+    event.eventHash
+)
+
+if (isValid) {
+    println("Event type: ${event.eventType}")
+    println("Event hash: ${event.eventHash}")
+    println("Data: ${event.data}")
+}
 ```
 
 ### Java Usage
