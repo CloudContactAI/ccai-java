@@ -21,7 +21,8 @@ fun main() {
             lastName = "Doe",
             phone = "+15551234567",
             message = "Hello John, this is a test message from CCAI SDK!",
-            title = "Test SMS Campaign"
+            title = "Test SMS Campaign",
+            customData = "{\"myAppCustomId\": \"3c1344d771eb48f99de6846746b2d4a0\"}"
         )
         println("SMS sent with response ID:${smsResponse.responseId} and campaign ID: ${smsResponse.id}")
         

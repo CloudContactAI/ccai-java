@@ -10,8 +10,7 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
         lastName: String,
         phone: String,
         message: String,
-        title: String,
-        senderPhone: String? = null
+        title: String
     ): SMSResponse {
         val account = Account(
             firstName = firstName,
@@ -19,6 +18,42 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
             phone = phone
         )
         
+        return send(listOf(account), message, title)
+    }
+
+    fun sendSingle(
+        firstName: String,
+        lastName: String,
+        phone: String,
+        message: String,
+        title: String,
+        senderPhone: String
+    ): SMSResponse {
+        val account = Account(
+            firstName = firstName,
+            lastName = lastName,
+            phone = phone
+        )
+
+        return send(listOf(account), message, title, senderPhone)
+    }
+
+    fun sendSingle(
+        firstName: String,
+        lastName: String,
+        phone: String,
+        message: String,
+        title: String,
+        customData: String,
+        senderPhone: String? = null
+    ): SMSResponse {
+        val account = Account(
+            firstName = firstName,
+            lastName = lastName,
+            phone = phone,
+            customData = customData
+        )
+
         return send(listOf(account), message, title, senderPhone)
     }
     
