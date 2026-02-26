@@ -12,6 +12,9 @@ class WebhookRequest {
     @JsonProperty("integrationType")
     var integrationType: String = "DEFAULT"
     
+    @JsonProperty("secretKey")
+    var secretKey: String? = null
+    
     constructor()
     
     constructor(url: String) {
@@ -20,16 +23,25 @@ class WebhookRequest {
         this.integrationType = "ALL"
     }
     
-    constructor(url: String, method: String) {
+    constructor(url: String, secretKey: String?) {
+        this.url = url
+        this.method = "POST"
+        this.integrationType = "ALL"
+        this.secretKey = secretKey
+    }
+    
+    constructor(url: String, secretKey: String?, method: String) {
         this.url = url
         this.method = method
         this.integrationType = "ALL"
+        this.secretKey = secretKey
     }
     
-    constructor(url: String, method: String, integrationType: String) {
+    constructor(url: String, secretKey: String?, method: String, integrationType: String) {
         this.url = url
         this.method = method
         this.integrationType = integrationType
+        this.secretKey = secretKey
     }
 }
 
@@ -37,21 +49,12 @@ data class WebhookResponse(
     @JsonProperty("id") val id: Long,
     @JsonProperty("url") val url: String,
     @JsonProperty("method") val method: String,
-    @JsonProperty("integrationType") val integrationType: String
+    @JsonProperty("integrationType") val integrationType: String,
+    @JsonProperty("secretKey") val secretKey: String?
 )
 
 data class WebhookEvent(
     @JsonProperty("eventType") val eventType: String,
-    @JsonProperty("timestamp") val timestamp: String,
-    @JsonProperty("campaignId") val campaignId: String?,
-    @JsonProperty("messageId") val messageId: String?,
-    @JsonProperty("phoneNumber") val phoneNumber: String?,
-    @JsonProperty("email") val email: String?,
-    @JsonProperty("status") val status: String?,
-    @JsonProperty("errorCode") val errorCode: String?,
-    @JsonProperty("errorMessage") val errorMessage: String?,
-    @JsonProperty("customData") val customData: Map<String, Any>?,
-    @JsonProperty("deliveryStatus") val deliveryStatus: String?,
-    @JsonProperty("cost") val cost: Double?,
-    @JsonProperty("accountId") val accountId: String?
+    @JsonProperty("data") val data: Map<String, Any?>,
+    @JsonProperty("eventHash") val eventHash: String
 )
