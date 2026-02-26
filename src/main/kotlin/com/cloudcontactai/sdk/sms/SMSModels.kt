@@ -8,7 +8,8 @@ data class Account(
     @JsonProperty("firstName") val firstName: String,
     @JsonProperty("lastName") val lastName: String,
     @JsonProperty("phone") val phone: String,
-    @JsonProperty("customFields") val customFields: Map<String, String> = emptyMap()
+    @JsonProperty("customFields") val customFields: Map<String, String> = emptyMap(),
+    @JsonProperty("messageData") val customData: String? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
