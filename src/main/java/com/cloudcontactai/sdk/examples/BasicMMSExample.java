@@ -51,7 +51,7 @@ public class BasicMMSExample {
                 null  // optional sender phone
             );
             
-            String responseId = response.getCampaignId() != null ? response.getCampaignId() : response.getId();
+            String responseId = response.getResponseId();
             System.out.println("MMS sent! Response ID: " + responseId);
             if (response.getSentCount() != null) {
                 System.out.println("Sent Count: " + response.getSentCount());

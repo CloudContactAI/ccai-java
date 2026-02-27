@@ -43,7 +43,7 @@ public class BasicSMSExample {
                 "Test Campaign",
                 null  // optional variables map
             );
-            System.out.println("SMS sent! ID: " + response1.getId());
+            System.out.println("SMS sent! ID: " + response1.getResponseId());
 
             // Example 2: Send SMS to multiple recipients
             System.out.println("\nSending SMS to multiple recipients...");
@@ -58,7 +58,7 @@ public class BasicSMSExample {
                 "Bulk Campaign",
                 null  // optional variables map
             );
-            System.out.println("Bulk SMS sent! ID: " + response2.getId());
+            System.out.println("Bulk SMS sent! ID: " + response2.getResponseId());
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
