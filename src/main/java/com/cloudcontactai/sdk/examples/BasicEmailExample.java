@@ -40,7 +40,7 @@ public class BasicEmailExample {
                 null  // optional text content
             );
             System.out.println("Email sent! Campaign ID: " + response1.getCampaignId());
-            System.out.println("Message ID: " + response1.getId());
+            System.out.println("Message ID: " + response1.getResponseId());
 
             // Example 2: Send email to multiple recipients
             System.out.println("\nSending email to multiple recipients...");
