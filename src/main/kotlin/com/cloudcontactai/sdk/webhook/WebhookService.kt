@@ -15,17 +15,24 @@ class WebhookService(private val config: CCAIConfig, private val apiClient: ApiC
     }
     
     fun create(request: WebhookRequest): WebhookResponse {
+        return create(listOf(request)).first()
+    }
+
+    fun create(request: List<WebhookRequest>): List<WebhookResponse> {
         return apiClient.request(
             method = "POST",
             endpoint = "/v1/client/${config.clientId}/integration",
-            data = listOf(request),
+            data = request,
             responseClass = Array<WebhookResponse>::class.java
-        ).first()
+        ).toList()
     }
 
-    fun get(): WebhookResponse? {
-        val webhooks = getAll()
-        return webhooks.firstOrNull()
+    fun get(webhookId: Long): WebhookResponse {
+        return apiClient.request(
+            method = "GET",
+            endpoint = "/v1/client/${config.clientId}/integration/${webhookId}",
+            responseClass = WebhookResponse::class.java
+        )
     }
 
     fun getAll(): List<WebhookResponse> {
@@ -36,8 +43,16 @@ class WebhookService(private val config: CCAIConfig, private val apiClient: ApiC
         ).toList()
     }
 
-    fun update(request: WebhookRequest): WebhookResponse {
+    fun update(request: WebhookUpdateRequest): WebhookResponse {
         return create(request)
+    }
+
+    fun delete(webhookId: Long): WebhookResponse {
+        return apiClient.request(
+            method = "DELETE",
+            endpoint = "/v1/client/${config.clientId}/integration/${webhookId}",
+            responseClass = WebhookResponse::class.java
+        )
     }
 
     fun parseWebhookEvent(payload: String): WebhookEvent {

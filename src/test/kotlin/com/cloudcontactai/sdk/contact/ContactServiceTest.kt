@@ -24,9 +24,9 @@ class ContactServiceTest {
             apiKey = "test-key"
         )
         
-        val contactBaseUrlField = CCAIConfig::class.java.getDeclaredField("contactBaseUrl")
-        contactBaseUrlField.isAccessible = true
-        contactBaseUrlField.set(config, mockServer.url("/").toString().trimEnd('/'))
+        val baseUrlField = CCAIConfig::class.java.getDeclaredField("baseUrl")
+        baseUrlField.isAccessible = true
+        baseUrlField.set(config, mockServer.url("/").toString().trimEnd('/'))
         
         client = CCAIClient(config)
     }
