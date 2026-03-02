@@ -2,7 +2,7 @@ package com.cloudcontactai.sdk.webhook
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class WebhookRequest {
+open class WebhookRequest {
     @JsonProperty("url")
     var url: String = ""
     
@@ -42,6 +42,26 @@ class WebhookRequest {
         this.method = method
         this.integrationType = integrationType
         this.secretKey = secretKey
+    }
+}
+
+class WebhookUpdateRequest(
+    @JsonProperty("id")
+    val id: Long
+) : WebhookRequest() {
+    constructor(id: Long, url: String) : this(id) {
+        this.url = url
+        this.integrationType = "ALL"
+    }
+
+    constructor(id: Long, url: String, secretKey: String?) : this(id, url) {
+        this.secretKey = secretKey
+        this.integrationType = "ALL"
+    }
+
+    constructor(id: Long, url: String, secretKey: String?, method: String) : this(id, url, secretKey) {
+        this.method = method
+        this.integrationType = "ALL"
     }
 }
 

@@ -49,27 +49,52 @@ public class WebhookExample {
             WebhookResponse customWebhook = client.getWebhook().create(customWebhookRequest);
             System.out.println("Webhook created with custom secret!");
 
-            // Example 3: Get the webhook
+            // Example 3: Create multiple webhooks (custom and auto-generated secret)
+            System.out.println("Creating multiple webhooks...");
+            List<WebhookRequest> listWebhookRequest = Arrays.asList(
+                    new WebhookRequest("https://your-new-app.com/webhooks/ccai", customSecret),
+                    new WebhookRequest("https://your-second-app.com/webhooks/ccai")
+            );
+
+            List<WebhookResponse> webhooks = client.getWebhook().create(listWebhookRequest);
+            System.out.println("First Webhook created! ID: " + webhooks.getFirst().getId());
+            System.out.println("Second Webhook created! ID: " + webhooks.getLast().getId());
+
+            // Example 4: Get the webhook by ID
             System.out.println("\nGetting webhook details...");
-            WebhookResponse webhookDetails = client.getWebhook().get();
-            if (webhookDetails != null) {
-                System.out.println("Webhook: " + webhookDetails.getUrl());
-                System.out.println("Method: " + webhookDetails.getMethod());
-                System.out.println("Secret Key: " + webhookDetails.getSecretKey());
-            } else {
-                System.out.println("No webhook configured");
+            Long webhookId = 105L; //your saved webhook ID
+            WebhookResponse webhookDetails = client.getWebhook().get(webhookId);
+            System.out.println("Webhook: " + webhookDetails.getUrl());
+            System.out.println("Method: " + webhookDetails.getMethod());
+            System.out.println("Secret Key: " + webhookDetails.getSecretKey());
+
+            // Example 5: Get webhook list
+            System.out.println("\nGetting all webhooks...");
+            List<WebhookResponse> webhookListDetails = client.getWebhook().getAll();
+            System.out.println("Webhook count: " + webhookListDetails.size());
+            if (!webhookListDetails.isEmpty()) {
+                System.out.println("First Method: " + webhookListDetails.getFirst().getMethod());
+                System.out.println("First Secret Key: " + webhookListDetails.getSecretKey());
             }
 
-            // Example 4: Update webhook
+            // Example 6: Update webhook
             System.out.println("\nUpdating webhook...");
-            WebhookRequest updateRequest = new WebhookRequest(
+            Long webhookId = 105L; //your saved webhook ID
+            WebhookUpdateRequest updateRequest = new WebhookUpdateRequest(
+                webhookId,
                 "https://your-app.com/webhooks/ccai-updated",
                 customSecret
             );
             WebhookResponse updated = client.getWebhook().update(updateRequest);
             System.out.println("Webhook updated! New URL: " + updated.getUrl());
 
-            // Example 5: Validate webhook signature
+            // Example 7: Delete a webhook
+            System.out.println("\nDeleting webhook...");
+            Long webhookId = 105L; //your saved webhook ID
+            WebhookResponse webhookDeleted = client.getWebhook().delete(webhookId);
+            System.out.println("Webhook Url deleted: " + webhookDeleted.getUrl());
+
+            // Example 8: Validate webhook signature
             System.out.println("\nValidating webhook signature...");
             String signatureFromHeader = "signature-from-X-CCAI-Signature-header";
             String secretKey = webhook.getSecretKey();
@@ -84,7 +109,7 @@ public class WebhookExample {
             );
             System.out.println("Signature valid: " + isValid);
 
-            // Example 5: Parse webhook event
+            // Example 9: Parse webhook event
             System.out.println("\nParsing webhook event...");
             String eventPayload = """
                 {
