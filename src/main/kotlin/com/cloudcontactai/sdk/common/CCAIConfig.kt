@@ -76,16 +76,6 @@ data class CCAIConfig @JvmOverloads constructor(
     } else {
         System.getenv("CCAI_FILES_BASE_URL") ?: "https://files.cloudcontactai.com"
     }
-
-    /**
-     * Base URL for the Contacts API
-     */
-    val contactBaseUrl: String = if (useTestEnvironment) {
-        System.getenv("CCAI_CONTACT_BASE_URL")?.replace("contacts.cloudcontactai.com", "contacts-test-cloudcontactai.allcode.com")
-            ?: "https://contacts-test-cloudcontactai.allcode.com/api/v1"
-    } else {
-        System.getenv("CCAI_CONTACT_BASE_URL") ?: "https://contacts.cloudcontactai.com/api/v1"
-    }
     
     init {
         require(clientId.isNotBlank()) { "Client ID cannot be blank" }
