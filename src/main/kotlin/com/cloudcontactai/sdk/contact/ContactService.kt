@@ -19,9 +19,8 @@ class ContactService(private val config: CCAIConfig, private val apiClient: ApiC
 
         return apiClient.request(
             method = "PUT",
-            endpoint = "/contacts/do-not-text",
+            endpoint = "/account/do-not-text",
             data = requestData,
-            baseUrl = config.contactBaseUrl,
             responseClass = ContactDoNotTextResponse::class.java
         )
     }
