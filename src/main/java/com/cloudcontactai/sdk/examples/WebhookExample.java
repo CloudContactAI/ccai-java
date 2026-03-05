@@ -57,8 +57,8 @@ public class WebhookExample {
             );
 
             List<WebhookResponse> webhooks = client.getWebhook().create(listWebhookRequest);
-            System.out.println("First Webhook created! ID: " + webhooks.getFirst().getId());
-            System.out.println("Second Webhook created! ID: " + webhooks.getLast().getId());
+            System.out.println("First Webhook created! ID: " + webhooks.get(0).getId());
+            System.out.println("Second Webhook created! ID: " + webhooks.get(1).getId());
 
             // Example 4: Get the webhook by ID
             System.out.println("\nGetting webhook details...");
@@ -73,13 +73,13 @@ public class WebhookExample {
             List<WebhookResponse> webhookListDetails = client.getWebhook().getAll();
             System.out.println("Webhook count: " + webhookListDetails.size());
             if (!webhookListDetails.isEmpty()) {
-                System.out.println("First Method: " + webhookListDetails.getFirst().getMethod());
-                System.out.println("First Secret Key: " + webhookListDetails.getSecretKey());
+                System.out.println("First Method: " + webhookListDetails.get(0).getMethod());
+                System.out.println("First Secret Key: " + webhookListDetails.get(0).getSecretKey());
             }
 
             // Example 6: Update webhook
             System.out.println("\nUpdating webhook...");
-            Long webhookId = 105L; //your saved webhook ID
+            long webhookId = 105; //your saved webhook ID
             WebhookUpdateRequest updateRequest = new WebhookUpdateRequest(
                 webhookId,
                 "https://your-app.com/webhooks/ccai-updated",
