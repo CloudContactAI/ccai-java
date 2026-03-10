@@ -1,11 +1,14 @@
 package com.cloudcontactai.sdk.mms
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 
 data class Account(
     val firstName: String,
     val lastName: String,
-    val phone: String
+    val phone: String,
+    val customFields: Map<String, String> = emptyMap(),
+    @JsonProperty("messageData") val customData: String? = null
 )
 
 data class MMSCampaign(

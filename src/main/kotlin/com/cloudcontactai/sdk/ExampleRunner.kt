@@ -73,7 +73,12 @@ fun runSampleMMS(ccai: CCAIClient){
     val imageFile = File("test-image.jpg")
     if (imageFile.exists()) {
         val mmsAccounts = listOf(
-            MMSAccount("John", "Doe", "+15551234567")
+            MMSAccount(
+                firstName = "Jhon",
+                lastName = "Doe",
+                phone = "+15551234567",
+                customData = "{\"customDataId\": \"3c5234d771eb48f99de7446746b2d4a0\"}"
+            )
         )
         val mmsResponse = ccai.mms.sendWithImage(
             accounts = mmsAccounts,

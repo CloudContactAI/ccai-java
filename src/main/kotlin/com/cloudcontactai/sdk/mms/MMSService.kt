@@ -101,10 +101,41 @@ class MMSService(private val config: CCAIConfig, private val apiClient: ApiClien
         phone: String,
         message: String,
         title: String,
-        pictureFileKey: String,
-        senderPhone: String? = null
+        pictureFileKey: String
     ): MMSResponse {
         val account = Account(firstName, lastName, phone)
+        return send(listOf(account), message, title, pictureFileKey)
+    }
+
+    fun sendSingle(
+        firstName: String,
+        lastName: String,
+        phone: String,
+        message: String,
+        title: String,
+        pictureFileKey: String,
+        senderPhone: String
+    ): MMSResponse {
+        val account = Account(firstName, lastName, phone)
+        return send(listOf(account), message, title, pictureFileKey, senderPhone)
+    }
+
+    fun sendSingle(
+        firstName: String,
+        lastName: String,
+        phone: String,
+        message: String,
+        title: String,
+        pictureFileKey: String,
+        customData: String,
+        senderPhone: String? = null
+    ): MMSResponse {
+        val account = Account(
+            firstName = firstName,
+            lastName = lastName,
+            phone = phone,
+            customData = customData
+        )
         return send(listOf(account), message, title, pictureFileKey, senderPhone)
     }
 

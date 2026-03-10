@@ -40,7 +40,13 @@ public class BasicMMSExample {
             }
             
             List<Account> accounts = Arrays.asList(
-                new Account("John", "Doe", "+15551234567")
+                new Account(
+                        "John",
+                        "Doe",
+                        "+15551234567",
+                        new java.util.HashMap<>(), //Custom fields in the contact
+                        "{\"customDataId\": \"3c5234d771eb48f99de7446746b2d4a0\"}" //custom data sent to webhook
+                )
             );
             
             MMSResponse response = client.getMms().sendWithImage(
