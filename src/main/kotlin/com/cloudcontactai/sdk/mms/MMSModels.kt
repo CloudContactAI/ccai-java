@@ -6,10 +6,24 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class Account(
     val firstName: String,
     val lastName: String,
-    val phone: String,
-    val customFields: Map<String, String> = emptyMap(),
-    @JsonProperty("messageData") val customData: String? = null
-)
+    val phone: String
+){
+    var customFields: Map<String, String> = emptyMap()
+    @JsonProperty("messageData") var customData: String? = null
+
+    constructor(firstName: String, lastName: String, phone: String, customFields: Map<String, String>) : this(firstName, lastName, phone) {
+        this.customFields = customFields
+    }
+
+    constructor(firstName: String, lastName: String, phone: String, customData: String) : this(firstName, lastName, phone) {
+        this.customData = customData
+    }
+
+    constructor(firstName: String, lastName: String, phone: String, customFields: Map<String, String>, customData: String) : this(firstName, lastName, phone) {
+        this.customFields = customFields
+        this.customData = customData
+    }
+}
 
 data class MMSCampaign(
     val accounts: List<Account>,
