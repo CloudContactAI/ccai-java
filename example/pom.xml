@@ -63,11 +63,6 @@
             <artifactId>kotlinx-coroutines-core</artifactId>
             <version>1.7.3</version>
         </dependency>
-        <dependency>
-            <groupId>com.cloudcontactai</groupId>
-            <artifactId>ccai-java</artifactId>
-            <version>1.0.0</version>
-        </dependency>
         
         <!-- dotenv for loading .env files -->
         <dependency>
@@ -78,7 +73,7 @@
         <dependency>
             <groupId>com.cloudcontactai</groupId>
             <artifactId>ccai-java-sdk</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.8</version>
         </dependency>
     </dependencies>
     
