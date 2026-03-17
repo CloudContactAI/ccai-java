@@ -136,7 +136,7 @@ public class JavaSdkTestApplication implements CommandLineRunner {
             
             // Upload and send MMS with the image
             List<com.cloudcontactai.sdk.mms.Account> accounts = new java.util.ArrayList<>();
-            com.cloudcontactai.sdk.mms.Account account = new com.cloudcontactai.sdk.mms.Account("John", "Doe", "+14158906431");
+            com.cloudcontactai.sdk.mms.Account account = new com.cloudcontactai.sdk.mms.Account("John", "Doe", "+14158906431", "{customId: \"3c1344d771eb48f99de6846746b2d4a0\"}");
             accounts.add(account);
             
             MMSResponse response = client.getMms().sendWithImage(
