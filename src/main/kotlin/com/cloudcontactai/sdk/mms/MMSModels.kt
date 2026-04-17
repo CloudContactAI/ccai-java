@@ -8,8 +8,11 @@ data class Account(
     val lastName: String,
     val phone: String
 ){
+    @JsonProperty("data")
     var customFields: Map<String, String> = emptyMap()
-    @JsonProperty("messageData") var customData: String? = null
+
+    @JsonProperty("messageData")
+    var customData: String? = null
 
     constructor(firstName: String, lastName: String, phone: String, customFields: Map<String, String>) : this(firstName, lastName, phone) {
         this.customFields = customFields
