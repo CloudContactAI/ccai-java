@@ -9,7 +9,7 @@ data class EmailAccount(
     @JsonProperty("lastName") val lastName: String,
     @JsonProperty("email") val email: String,
     @JsonProperty("customAccountId") val customAccountId: String? = null,
-    @JsonProperty("customFields") val customFields: Map<String, String> = emptyMap()
+    @JsonProperty("data") val customFields: Map<String, String> = emptyMap()
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
