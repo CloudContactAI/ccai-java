@@ -97,3 +97,6 @@ yarn-error.log*
 
 # Test files
 test-image.jpg
+
+# Claude
+.claude/

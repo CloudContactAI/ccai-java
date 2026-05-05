@@ -7,6 +7,8 @@ A Kotlin/Java client library for interacting with the [CloudContactAI](https://c
 - Send SMS messages to single or multiple recipients
 - Send MMS messages with images to single or multiple recipients
 - Send Email campaigns to single or multiple recipients
+- Brand registration and management for TCR verification
+- Campaign registration and management for TCR carrier vetting
 - Manage webhooks for event notifications
 - Webhook signature validation for security
 - Variable substitution in messages
@@ -329,6 +331,108 @@ if (isValid) {
     println("Data: ${event.data}")
 }
 ```
+
+#### Brand Registration
+
+```kotlin
+import com.cloudcontactai.sdk.brands.BrandRequest
+
+// Create a brand
+val brand = ccai.brands.create(BrandRequest(
+    legalCompanyName = "Collect.org Inc.",
+    dba = "Collect",
+    entityType = "NON_PROFIT",
+    taxId = "123456789",
+    taxIdCountry = "US",
+    country = "US",
+    verticalType = "NON_PROFIT",
+    websiteUrl = "https://www.collect.org",
+    street = "123 Main Street",
+    city = "San Francisco",
+    state = "CA",
+    postalCode = "94105",
+    contactFirstName = "Jane",
+    contactLastName = "Doe",
+    contactEmail = "jane@collect.org",
+    contactPhone = "+14155551234"
+))
+println("Brand created with ID: ${brand.id}")
+
+// Get a brand by ID
+val fetched = ccai.brands.get(brand.id)
+println("Website match score: ${fetched.websiteMatchScore ?: "pending"}")
+
+// List all brands for the account
+val brands = ccai.brands.list()
+println("Found ${brands.size} brand(s)")
+
+// Update a brand (partial update)
+val updated = ccai.brands.update(brand.id, BrandRequest(
+    street = "456 Oak Avenue",
+    city = "Los Angeles"
+))
+
+// Delete a brand
+ccai.brands.delete(brand.id)
+```
+
+**Entity Types:** `PRIVATE_PROFIT`, `PUBLIC_PROFIT`, `NON_PROFIT`, `GOVERNMENT`, `SOLE_PROPRIETOR`
+
+> Note: `PUBLIC_PROFIT` entities require `stockSymbol` and `stockExchange` fields.
+
+**Vertical Types:** `AUTOMOTIVE`, `AGRICULTURE`, `BANKING`, `COMMUNICATION`, `CONSTRUCTION`, `EDUCATION`, `ENERGY`, `ENTERTAINMENT`, `GOVERNMENT`, `HEALTHCARE`, `HOSPITALITY`, `INSURANCE`, `LEGAL`, `MANUFACTURING`, `NON_PROFIT`, `PROFESSIONAL`, `REAL_ESTATE`, `RETAIL`, `TECHNOLOGY`, `TRANSPORTATION`
+
+#### Campaign Registration
+
+```kotlin
+import com.cloudcontactai.sdk.campaigns.CampaignRequest
+
+// Create a campaign
+val campaign = ccai.campaigns.create(CampaignRequest(
+    brandId = 1,
+    useCase = "MIXED",
+    subUseCases = listOf("CUSTOMER_CARE", "TWO_FACTOR_AUTHENTICATION", "ACCOUNT_NOTIFICATION"),
+    description = "Security codes and support messaging.",
+    messageFlow = "Users opt-in via signup form at https://example.com/signup",
+    hasEmbeddedLinks = true,
+    hasEmbeddedPhone = false,
+    isAgeGated = false,
+    isDirectLending = false,
+    optInKeywords = listOf("START"),
+    optInMessage = "Welcome! Reply STOP to cancel.",
+    optInProofUrl = "https://example.com/opt-in-proof.png",
+    helpKeywords = listOf("HELP"),
+    helpMessage = "For HELP email support@example.com.",
+    optOutKeywords = listOf("STOP"),
+    optOutMessage = "STOP received. You are unsubscribed.",
+    sampleMessages = listOf(
+        "Your code is 554321. Reply STOP to cancel.",
+        "Your ticket has been updated. Reply HELP for info."
+    )
+))
+println("Campaign created with ID: ${campaign.id}")
+
+// Get a campaign by ID
+val fetched = ccai.campaigns.get(campaign.id)
+
+// List all campaigns for the account
+val campaigns = ccai.campaigns.list()
+println("Found ${campaigns.size} campaign(s)")
+
+// Update a campaign (partial update)
+val updated = ccai.campaigns.update(campaign.id, CampaignRequest(
+    description = "Updated description."
+))
+
+// Delete a campaign
+ccai.campaigns.delete(campaign.id)
+```
+
+**Use Cases:** `TWO_FACTOR_AUTHENTICATION`, `ACCOUNT_NOTIFICATION`, `CUSTOMER_CARE`, `DELIVERY_NOTIFICATION`, `FRAUD_ALERT`, `HIGHER_EDUCATION`, `LOW_VOLUME_MIXED`, `MARKETING`, `MIXED`, `POLLING_VOTING`, `PUBLIC_SERVICE_ANNOUNCEMENT`, `SECURITY_ALERT`
+
+> Note: `MIXED` and `LOW_VOLUME_MIXED` campaigns require 2–3 `subUseCases`.
+
+**Sub-Use Cases:** `TWO_FACTOR_AUTHENTICATION`, `ACCOUNT_NOTIFICATION`, `CUSTOMER_CARE`, `DELIVERY_NOTIFICATION`, `FRAUD_ALERT`, `MARKETING`, `POLLING_VOTING`
 
 ### Java Usage
 
