@@ -50,6 +50,14 @@ class ApiClient(config: CCAIConfig) {
                 }
                 requestBuilder.put(body)
             }
+            "PATCH" -> {
+                val body = if (data != null) {
+                    objectMapper.writeValueAsString(data).toRequestBody(jsonMediaType)
+                } else {
+                    "".toRequestBody(jsonMediaType)
+                }
+                requestBuilder.patch(body)
+            }
             "DELETE" -> requestBuilder.delete()
         }
         
@@ -64,6 +72,39 @@ class ApiClient(config: CCAIConfig) {
             
             val responseBody = response.body?.string() ?: ""
             return objectMapper.readValue(responseBody, responseClass)
+        }
+    }
+
+    fun requestNoContent(
+        method: String,
+        endpoint: String,
+        data: Any? = null,
+        baseUrl: String? = null,
+        headers: Map<String, String> = emptyMap()
+    ) {
+        val url = "${baseUrl ?: this.baseUrl}$endpoint"
+
+        val requestBuilder = Request.Builder()
+            .url(url)
+            .addHeader("Authorization", "Bearer $apiKey")
+            .addHeader("Accept", "application/json")
+
+        headers.forEach { (key, value) ->
+            requestBuilder.addHeader(key, value)
+        }
+
+        when (method.uppercase()) {
+            "DELETE" -> requestBuilder.delete()
+            else -> {}
+        }
+
+        val request = requestBuilder.build()
+
+        client.newCall(request).execute().use { response ->
+            if (!response.isSuccessful) {
+                val errorBody = response.body?.string() ?: ""
+                throw CCAIException("HTTP ${response.code}: ${response.message} $errorBody")
+            }
         }
     }
 }

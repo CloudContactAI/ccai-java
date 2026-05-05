@@ -2,6 +2,10 @@ package com.example.javasdk;
 
 import com.cloudcontactai.sdk.CCAIClient;
 import com.cloudcontactai.sdk.common.CCAIConfig;
+import com.cloudcontactai.sdk.brands.BrandRequest;
+import com.cloudcontactai.sdk.brands.BrandResponse;
+import com.cloudcontactai.sdk.campaigns.CampaignRequest;
+import com.cloudcontactai.sdk.campaigns.CampaignResponse;
 import com.cloudcontactai.sdk.contact.ContactDoNotTextResponse;
 import com.cloudcontactai.sdk.sms.SMSResponse;
 import com.cloudcontactai.sdk.mms.MMSResponse;
@@ -59,6 +63,12 @@ public class JavaSdkTestApplication implements CommandLineRunner {
                 return;
             } else if("contact".equals(args[0])){
                 runDoNotTextContactTest(client);
+                return;
+            } else if("brands".equals(args[0])){
+                runBrandsTest(client);
+                return;
+            } else if("campaigns".equals(args[0])){
+                runCampaignsTest(client);
                 return;
             }
         }
@@ -224,6 +234,107 @@ public class JavaSdkTestApplication implements CommandLineRunner {
                     ", DoNotText: " + response.getDoNotText());
         }catch (Exception e){
             System.out.printf("Do not text Test Result: FAIL %s", e.getMessage());
+        }
+    }
+
+    private static void runBrandsTest(CCAIClient client) {
+        try {
+            System.out.println("Testing Brands CCAI Java SDK...");
+
+            // Create a brand
+            BrandRequest request = new BrandRequest(
+                "Collect.org Inc.", "Collect", "NON_PROFIT",
+                "123456789", "US", "US", "NON_PROFIT",
+                "https://www.collect.org", null, null,
+                "123 Main Street", "San Francisco", "CA", "94105",
+                "Jane", "Doe", "jane@collect.org", "+14155551234", false
+            );
+            BrandResponse brand = client.getBrands().create(request);
+            System.out.println("Brand created with ID: " + brand.getId());
+
+            // Get brand by ID
+            BrandResponse fetched = client.getBrands().get(brand.getId());
+            System.out.println("Brand: " + fetched.getLegalCompanyName() +
+                    ", Score: " + fetched.getWebsiteMatchScore());
+
+            // List all brands
+            BrandResponse[] brands = client.getBrands().list();
+            System.out.println("Found " + brands.length + " brand(s)");
+
+            // Update a brand
+            BrandRequest updateRequest = new BrandRequest(
+                null, null, null, null, null, null, null, null, null, null,
+                "456 Oak Avenue", "Los Angeles", null, null,
+                null, null, "admin@collect.org", null, false
+            );
+            BrandResponse updated = client.getBrands().update(brand.getId(), updateRequest);
+            System.out.println("Brand updated: " + updated.getStreet() + ", " + updated.getCity());
+
+            // Delete a brand
+            client.getBrands().delete(brand.getId());
+            System.out.println("Brand deleted successfully");
+        } catch (Exception e) {
+            System.out.printf("Brands Test Result: FAIL %s%n", e.getMessage());
+        }
+    }
+
+    private static void runCampaignsTest(CCAIClient client) {
+        try {
+            System.out.println("Testing Campaigns CCAI Java SDK...");
+
+            // Create a campaign (assumes brand ID 1 exists)
+            CampaignResponse campaign = client.getCampaigns().create(new CampaignRequest(
+                1L,
+                "MIXED",
+                Arrays.asList("CUSTOMER_CARE", "TWO_FACTOR_AUTHENTICATION", "ACCOUNT_NOTIFICATION"),
+                "This campaign handles security codes and support for Collect.org.",
+                "Users opt-in via our signup form checkbox at https://collect.org/signup",
+                "https://collect.org/terms",
+                "https://collect.org/privacy",
+                true,
+                false,
+                false,
+                false,
+                Arrays.asList("START", "JOIN"),
+                "Welcome to Collect.org! Msg&Data rates may apply. Reply STOP to cancel.",
+                "https://collect.org/images/opt-in-proof.png",
+                Arrays.asList("HELP", "INFO"),
+                "Collect.org: For help email support@collect.org. Reply STOP to cancel.",
+                Arrays.asList("STOP", "UNSUBSCRIBE"),
+                "Collect.org: You have been unsubscribed. STOP received.",
+                Arrays.asList(
+                    "Your Collect.org security code is 554321. Reply STOP to cancel.",
+                    "Hi [Name], your ticket #[ID] has been updated. Reply HELP for more info."
+                )
+            ));
+            System.out.println("Campaign created with ID: " + campaign.getId());
+
+            // Get campaign by ID
+            CampaignResponse fetched = client.getCampaigns().get(campaign.getId());
+            System.out.println("Campaign: " + fetched.getUseCase() + ", Brand: " + fetched.getBrandId());
+
+            // List all campaigns
+            CampaignResponse[] campaigns = client.getCampaigns().list();
+            System.out.println("Found " + campaigns.length + " campaign(s)");
+
+            // Update a campaign
+            CampaignResponse updated = client.getCampaigns().update(campaign.getId(), new CampaignRequest(
+                null, null, null,
+                "Updated campaign description for Collect.org messaging.",
+                null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+                Arrays.asList(
+                    "Your Collect.org code is 123456. Reply STOP to opt-out.",
+                    "Your support ticket has been resolved. Reply HELP for more info.",
+                    "Your payment of $50.00 was received. Reply STOP to cancel."
+                )
+            ));
+            System.out.println("Campaign updated: " + updated.getDescription());
+
+            // Delete a campaign
+            client.getCampaigns().delete(campaign.getId());
+            System.out.println("Campaign deleted successfully");
+        } catch (Exception e) {
+            System.out.printf("Campaigns Test Result: FAIL %s%n", e.getMessage());
         }
     }
 }

@@ -77,6 +77,16 @@ data class CCAIConfig @JvmOverloads constructor(
         System.getenv("CCAI_FILES_BASE_URL") ?: "https://files.cloudcontactai.com"
     }
     
+    /**
+     * Base URL for the Compliance API (Brands/Campaigns)
+     */
+    val complianceBaseUrl: String = if (useTestEnvironment) {
+        System.getenv("CCAI_COMPLIANCE_BASE_URL")?.replace("compliance.cloudcontactai.com", "compliance-test-cloudcontactai.allcode.com")
+            ?: "https://compliance-test-cloudcontactai.allcode.com/api"
+    } else {
+        System.getenv("CCAI_COMPLIANCE_BASE_URL") ?: "https://compliance.cloudcontactai.com/api"
+    }
+    
     init {
         require(clientId.isNotBlank()) { "Client ID cannot be blank" }
         require(apiKey.isNotBlank()) { "API key cannot be blank" }
