@@ -14,13 +14,15 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Override with -Dccai.sdk.version=X.Y.Z for release testing -->
+        <ccai.sdk.version>1.0.5</ccai.sdk.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.cloudcontactai</groupId>
             <artifactId>ccai-java-sdk</artifactId>
-            <version>1.0.5</version>
+            <version>${ccai.sdk.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

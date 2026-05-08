@@ -1,0 +1,17 @@
+FROM maven:3.9-eclipse-temurin-17 AS build
+
+ARG SDK_VERSION=1.0.9
+
+WORKDIR /sdk/integration
+COPY integration/pom.xml ./
+
+# Resolve the published SDK version from Maven Central (no local install step)
+RUN mvn dependency:go-offline -q -Dccai.sdk.version=${SDK_VERSION} || true
+
+COPY integration/ ./
+RUN mvn package -DskipTests -q -Dccai.sdk.version=${SDK_VERSION}
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /sdk/integration/target/ccai-integration-test-java-1.0-shaded.jar ./test.jar
+CMD ["java", "-jar", "test.jar"]
