@@ -247,15 +247,12 @@ For optimal MMS delivery and performance:
 
 ```kotlin
 import com.cloudcontactai.sdk.mms.Account
+import com.cloudcontactai.sdk.mms.SignedUploadUrlRequest
 import java.io.File
 
-// Send MMS with automatic image upload (recommended)
+// ── Option A: All-in-one (recommended) ─────────────────────────────────────
 val mmsAccounts = listOf(
-    Account(
-        firstName = "John",
-        lastName = "Doe",
-        phone = "+15551234567"
-    )
+    Account(firstName = "John", lastName = "Doe", phone = "+15551234567")
 )
 
 val imageFile = File("path/to/image.jpg")
@@ -264,17 +261,50 @@ val mmsResponse = ccai.mms.sendWithImage(
     message = "Check out this image!",
     title = "MMS Campaign",
     imageFile = imageFile
+    // optional: senderPhone = "+15559990000"
 )
-
-// Response ID may be in campaignId or id field
 val responseId = mmsResponse.campaignId ?: mmsResponse.id
 println("MMS sent with ID: ${responseId}")
+
+// ── Option B: Manual workflow (step-by-step) ────────────────────────────────
+
+// Step 1 — Get a pre-signed S3 upload URL
+val uploadRequest = SignedUploadUrlRequest(fileName = "image.jpg", fileType = "image/jpeg")
+val uploadResponse = ccai.mms.getSignedUploadUrl(uploadRequest)
+
+// Step 2 — Upload the image to S3
+ccai.mms.uploadImageToSignedUrl(uploadResponse.signedS3Url, imageFile, "image/jpeg")
+
+// Step 3 — (Optional) Confirm the file is available
+val stored = ccai.mms.checkFileUploaded(uploadResponse.fileKey!!)
+println("File URL: ${stored.storedUrl}")
+
+// Step 4a — Send to multiple recipients using the uploaded fileKey
+val bulkResponse = ccai.mms.send(
+    accounts = mmsAccounts,
+    message = "Hello ${firstName}!",
+    title = "MMS Campaign",
+    pictureFileKey = uploadResponse.fileKey!!
+    // optional: senderPhone = "+15559990000"
+)
+
+// Step 4b — Send to a single recipient
+val singleResponse = ccai.mms.sendSingle(
+    firstName = "John",
+    lastName = "Doe",
+    phone = "+15551234567",
+    message = "Hello ${firstName}!",
+    title = "MMS Campaign",
+    pictureFileKey = uploadResponse.fileKey!!
+    // optional: senderPhone = "+15559990000"
+)
 ```
 
 #### Webhook Management
 
 ```kotlin
 import com.cloudcontactai.sdk.webhook.WebhookRequest
+import com.cloudcontactai.sdk.webhook.WebhookUpdateRequest
 
 // Create a webhook (auto-generated secret)
 val webhook = ccai.webhook.create(WebhookRequest("https://your-app.com/webhooks/ccai"))
@@ -288,19 +318,26 @@ val customWebhook = ccai.webhook.create(
 )
 println("Webhook created with custom secret!")
 
-// Get the webhook
-val webhookDetails = ccai.webhook.get()
-webhookDetails?.let {
-    println("Current webhook URL: ${it.url}")
-    println("Method: ${it.method}")
-    println("Secret Key: ${it.secretKey}")
+// Get all webhooks
+val allWebhooks = ccai.webhook.getAll()
+allWebhooks.forEach { wh ->
+    println("Webhook ID: ${wh.id}, URL: ${wh.url}")
 }
+
+// Get a specific webhook by ID
+val webhookDetails = ccai.webhook.get(webhook.id)
+println("Current webhook URL: ${webhookDetails.url}")
+println("Method: ${webhookDetails.method}")
+println("Secret Key: ${webhookDetails.secretKey}")
 
 // Update webhook
 val updated = ccai.webhook.update(
-    WebhookRequest("https://your-app.com/webhooks/ccai-updated", "my-custom-secret-32chars12345")
+    WebhookUpdateRequest(webhook.id, "https://your-app.com/webhooks/ccai-updated", "my-custom-secret-32chars12345")
 )
 println("Webhook updated to: ${updated.url}")
+
+// Delete a webhook
+ccai.webhook.delete(webhook.id)
 
 // Validate CloudContactAI webhook signature (using eventHash)
 val payload = """
@@ -433,6 +470,21 @@ ccai.campaigns.delete(campaign.id)
 > Note: `MIXED` and `LOW_VOLUME_MIXED` campaigns require 2–3 `subUseCases`.
 
 **Sub-Use Cases:** `TWO_FACTOR_AUTHENTICATION`, `ACCOUNT_NOTIFICATION`, `CUSTOMER_CARE`, `DELIVERY_NOTIFICATION`, `FRAUD_ALERT`, `MARKETING`, `POLLING_VOTING`
+
+#### Contact Management
+
+```kotlin
+import com.cloudcontactai.sdk.contact.ContactService
+
+// Opt a contact out of text messages (by phone number)
+ccai.contact.setDoNotText(phone = "+15551234567", doNotText = true)
+
+// Opt a contact back in (by phone number)
+ccai.contact.setDoNotText(phone = "+15551234567", doNotText = false)
+
+// Opt out by contactId
+ccai.contact.setDoNotText(contactId = "contact-abc-123", doNotText = true)
+```
 
 ### Java Usage
 
