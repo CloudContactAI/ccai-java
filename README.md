@@ -11,6 +11,7 @@ A Kotlin/Java client library for interacting with the [CloudContactAI](https://c
 - Campaign registration and management for TCR carrier vetting
 - Manage webhooks for event notifications
 - Webhook signature validation for security
+- Validate email addresses (valid/invalid/risky) and phone numbers (valid/invalid/landline)
 - Variable substitution in messages
 - Test environment support
 - Comprehensive error handling
@@ -298,6 +299,40 @@ val singleResponse = ccai.mms.sendSingle(
     pictureFileKey = uploadResponse.fileKey!!
     // optional: senderPhone = "+15559990000"
 )
+```
+
+#### Contact Validator
+
+Validate email addresses and phone numbers.
+
+> Bulk endpoints accept up to 50 contacts per request and are processed server-side in chunks.
+
+```kotlin
+import com.cloudcontactai.sdk.contactvalidator.PhoneInput
+
+// Validate a single email
+val emailResult = ccai.contactValidator.validateEmail("user@example.com")
+println(emailResult.status) // "valid" | "invalid" | "risky"
+println(emailResult.metadata["safe_to_send"]) // true | false
+
+// Validate multiple emails (up to 50, processed server-side in chunks)
+val bulkEmails = ccai.contactValidator.validateEmails(listOf(
+    "user@example.com",
+    "bad@invalid.xyz"
+))
+println(bulkEmails.summary) // ValidationSummary(total=2, valid=1, invalid=1, risky=0, landline=0)
+
+// Validate a single phone number
+val phoneResult = ccai.contactValidator.validatePhone("+15551234567", countryCode = "US")
+println(phoneResult.status) // "valid" | "invalid" | "landline"
+println(phoneResult.metadata["carrier_type"]) // "mobile" | "landline" | "voip"
+
+// Validate multiple phone numbers (up to 50, processed server-side in chunks)
+val bulkPhones = ccai.contactValidator.validatePhones(listOf(
+    PhoneInput(phone = "+15551234567"),
+    PhoneInput(phone = "+15559876543", countryCode = "US")
+))
+println(bulkPhones.summary) // ValidationSummary(total=2, valid=1, invalid=0, risky=0, landline=1)
 ```
 
 #### Webhook Management
