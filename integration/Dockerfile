@@ -5,7 +5,7 @@ COPY pom.xml ./
 RUN mvn dependency:go-offline -q || true
 
 COPY src/ ./src/
-RUN mvn install -DskipTests -q
+RUN mvn install -DskipTests -Dgpg.skip=true -q
 
 WORKDIR /sdk/integration
 COPY integration/pom.xml ./
