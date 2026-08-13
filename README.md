@@ -19,7 +19,7 @@ A Kotlin/Java client library for interacting with the [CloudContactAI](https://c
 
 ## Requirements
 
-- Java 17 or higher
+- Java 11 or higher
 - Kotlin 1.9.0 or higher (if using Kotlin)
 
 ## Installation
@@ -46,12 +46,20 @@ implementation 'com.cloudcontactai:ccai-java-sdk:1.2.0'
 
 ## Configuration
 
-Set environment variables or pass configuration directly:
+The SDK does not read environment variables on its own — `CCAIConfig` always requires `clientId` and `apiKey` to be passed explicitly to its constructor. The usual pattern is to set environment variables and read them yourself before constructing the config:
 
 ```bash
 export CCAI_CLIENT_ID=1231
 export CCAI_API_KEY=your-api-key-here
 export CCAI_USE_TEST_ENVIRONMENT=false
+```
+
+```kotlin
+val config = CCAIConfig(
+    clientId = System.getenv("CCAI_CLIENT_ID") ?: throw IllegalArgumentException("CCAI_CLIENT_ID not found"),
+    apiKey = System.getenv("CCAI_API_KEY") ?: throw IllegalArgumentException("CCAI_API_KEY not found"),
+    useTestEnvironment = System.getenv("CCAI_USE_TEST_ENVIRONMENT")?.toBoolean() ?: false
+)
 ```
 
 ## Usage
@@ -494,6 +502,8 @@ val campaign = ccai.campaigns.create(CampaignRequest(
     subUseCases = listOf("CUSTOMER_CARE", "TWO_FACTOR_AUTHENTICATION", "ACCOUNT_NOTIFICATION"),
     description = "Security codes and support messaging.",
     messageFlow = "Users opt-in via signup form at https://example.com/signup",
+    termsLink = "https://example.com/terms",
+    privacyLink = "https://example.com/privacy",
     hasEmbeddedLinks = true,
     hasEmbeddedPhone = false,
     isAgeGated = false,
@@ -532,6 +542,8 @@ ccai.campaigns.delete(campaign.id)
 
 > Note: `MIXED` and `LOW_VOLUME_MIXED` campaigns require 2–3 `subUseCases`.
 
+> `termsLink` and `privacyLink` are optional fields on `CampaignRequest`/`CampaignResponse`.
+
 **Sub-Use Cases:** `TWO_FACTOR_AUTHENTICATION`, `ACCOUNT_NOTIFICATION`, `CUSTOMER_CARE`, `DELIVERY_NOTIFICATION`, `FRAUD_ALERT`, `MARKETING`, `POLLING_VOTING`
 
 #### Contact Management
@@ -551,6 +563,8 @@ ccai.contact.setDoNotText(contactId = "contact-abc-123", doNotText = true)
 
 ### Java Usage
 
+From Java, call one of the overloads declared on each service with a matching argument list — parameters with default values in Kotlin are not available as omittable arguments through Java.
+
 ```java
 import com.cloudcontactai.sdk.CCAIClient;
 import com.cloudcontactai.sdk.common.CCAIConfig;
@@ -565,20 +579,146 @@ CCAIConfig config = new CCAIConfig(
 
 CCAIClient ccai = new CCAIClient(config);
 
-// Send SMS
+// Send SMS (5-arg overload — no senderPhone)
 SMSResponse response = ccai.getSms().sendSingle(
     "John",
     "Doe", 
     "+15551234567",
     "Hello John, this is a test message!",
-    "Test Campaign",
-    null  // optional sender phone
+    "Test Campaign"
 );
 
 System.out.println("Message sent with ID: " + response.getId());
 
 ccai.close();
 ```
+
+#### Contact Validator (Java)
+
+`validatePhone` takes both arguments (pass `null` for `countryCode` if you don't have one), and `PhoneInput`'s constructor takes both `phone` and `countryCode` (`null` allowed for `countryCode`).
+
+```java
+import com.cloudcontactai.sdk.contactvalidator.EmailValidationResult;
+import com.cloudcontactai.sdk.contactvalidator.PhoneValidationResult;
+import com.cloudcontactai.sdk.contactvalidator.BulkPhoneValidationResult;
+import com.cloudcontactai.sdk.contactvalidator.PhoneInput;
+
+import java.util.Arrays;
+import java.util.List;
+
+// Validate a single email
+EmailValidationResult emailResult = ccai.getContactValidator().validateEmail("user@example.com");
+System.out.println(emailResult.getStatus()); // "valid" | "invalid" | "risky"
+
+// Validate a single phone number
+PhoneValidationResult phoneResult = ccai.getContactValidator().validatePhone("+15551234567", "US");
+System.out.println(phoneResult.getStatus()); // "valid" | "invalid" | "landline"
+
+// Validate multiple phone numbers (up to 50, processed server-side in chunks)
+List<PhoneInput> phones = Arrays.asList(
+    new PhoneInput("+15551234567", null),
+    new PhoneInput("+15559876543", "US")
+);
+BulkPhoneValidationResult bulkPhones = ccai.getContactValidator().validatePhones(phones);
+System.out.println(bulkPhones.getSummary());
+```
+
+#### Brand Registration (Java)
+
+`BrandRequest` fields are passed positionally (use `null` for fields you don't want to set), in this order:
+`legalCompanyName, dba, entityType, taxId, taxIdCountry, country, verticalType, websiteUrl, stockSymbol, stockExchange, street, city, state, postalCode, contactFirstName, contactLastName, contactEmail, contactPhone, websiteMatch`.
+
+```java
+import com.cloudcontactai.sdk.brands.BrandRequest;
+import com.cloudcontactai.sdk.brands.BrandResponse;
+
+// Create a brand
+BrandRequest request = new BrandRequest(
+    "Collect.org Inc.", "Collect", "NON_PROFIT",
+    "123456789", "US", "US", "NON_PROFIT",
+    "https://www.collect.org", null, null,
+    "123 Main Street", "San Francisco", "CA", "94105",
+    "Jane", "Doe", "jane@collect.org", "+14155551234", false
+);
+BrandResponse brand = ccai.getBrands().create(request);
+System.out.println("Brand created with ID: " + brand.getId());
+
+// Get a brand by ID
+BrandResponse fetched = ccai.getBrands().get(brand.getId());
+System.out.println("Website match score: " + fetched.getWebsiteMatchScore());
+
+// List all brands for the account
+BrandResponse[] brands = ccai.getBrands().list();
+System.out.println("Found " + brands.length + " brand(s)");
+
+// Update a brand (partial update — unset fields must be passed as null)
+BrandRequest updateRequest = new BrandRequest(
+    null, null, null, null, null, null, null, null, null, null,
+    "456 Oak Avenue", "Los Angeles", null, null,
+    null, null, null, null, false
+);
+BrandResponse updated = ccai.getBrands().update(brand.getId(), updateRequest);
+
+// Delete a brand
+ccai.getBrands().delete(brand.getId());
+```
+
+**Entity Types:** `PRIVATE_PROFIT`, `PUBLIC_PROFIT`, `NON_PROFIT`, `GOVERNMENT`, `SOLE_PROPRIETOR`
+
+> Note: `PUBLIC_PROFIT` entities require `stockSymbol` and `stockExchange` fields.
+
+#### Campaign Registration (Java)
+
+`CampaignRequest` fields are passed positionally, in this order:
+`brandId, useCase, subUseCases, description, messageFlow, termsLink, privacyLink, hasEmbeddedLinks, hasEmbeddedPhone, isAgeGated, isDirectLending, optInKeywords, optInMessage, optInProofUrl, helpKeywords, helpMessage, optOutKeywords, optOutMessage, sampleMessages`.
+
+```java
+import com.cloudcontactai.sdk.campaigns.CampaignRequest;
+import com.cloudcontactai.sdk.campaigns.CampaignResponse;
+
+import java.util.Arrays;
+
+// Create a campaign (assumes brand ID 1 exists)
+CampaignResponse campaign = ccai.getCampaigns().create(new CampaignRequest(
+    1L,                          // brandId
+    "MIXED",                     // useCase
+    Arrays.asList("CUSTOMER_CARE", "TWO_FACTOR_AUTHENTICATION", "ACCOUNT_NOTIFICATION"),
+    "Security codes and support messaging.",
+    "Users opt-in via signup form at https://example.com/signup",
+    "https://example.com/terms",     // termsLink
+    "https://example.com/privacy",   // privacyLink
+    true,                         // hasEmbeddedLinks
+    false,                        // hasEmbeddedPhone
+    false,                        // isAgeGated
+    false,                        // isDirectLending
+    Arrays.asList("START"),
+    "Welcome! Reply STOP to cancel.",
+    "https://example.com/opt-in-proof.png",
+    Arrays.asList("HELP"),
+    "For HELP email support@example.com.",
+    Arrays.asList("STOP"),
+    "STOP received. You are unsubscribed.",
+    Arrays.asList(
+        "Your code is 554321. Reply STOP to cancel.",
+        "Your ticket has been updated. Reply HELP for info."
+    )
+));
+System.out.println("Campaign created with ID: " + campaign.getId());
+
+// Get a campaign by ID
+CampaignResponse fetched = ccai.getCampaigns().get(campaign.getId());
+
+// List all campaigns for the account
+CampaignResponse[] campaigns = ccai.getCampaigns().list();
+System.out.println("Found " + campaigns.length + " campaign(s)");
+
+// Delete a campaign
+ccai.getCampaigns().delete(campaign.getId());
+```
+
+**Use Cases:** `TWO_FACTOR_AUTHENTICATION`, `ACCOUNT_NOTIFICATION`, `CUSTOMER_CARE`, `DELIVERY_NOTIFICATION`, `FRAUD_ALERT`, `HIGHER_EDUCATION`, `LOW_VOLUME_MIXED`, `MARKETING`, `MIXED`, `POLLING_VOTING`, `PUBLIC_SERVICE_ANNOUNCEMENT`, `SECURITY_ALERT`
+
+> Note: `MIXED` and `LOW_VOLUME_MIXED` campaigns require 2–3 `subUseCases`.
 
 ## Configuration Options
 
@@ -587,15 +727,13 @@ The `CCAIConfig` class supports the following options:
 - `clientId`: Your CCAI client ID (required)
 - `apiKey`: Your CCAI API key (required)
 - `useTestEnvironment`: Whether to use test environment URLs (default: false)
-- `debugMode`: Enable debug logging (default: false)
-- `maxRetries`: Maximum retry attempts for failed requests (default: 3)
-- `timeoutMs`: Request timeout in milliseconds (default: 30000)
 
-The SDK automatically configures the following URLs based on `useTestEnvironment`:
-- `baseUrl`: SMS/MMS API endpoint
-- `emailBaseUrl`: Email API endpoint
-- `authBaseUrl`: Authentication API endpoint
-- `filesBaseUrl`: File upload API endpoint (for MMS)
+The SDK automatically configures the following URLs based on `useTestEnvironment` (each overridable via its own environment variable — see `CCAIConfig`):
+- `baseUrl` (`CCAI_BASE_URL`): SMS/MMS campaign API endpoint
+- `emailBaseUrl` (`CCAI_EMAIL_BASE_URL`): Email API endpoint
+- `authBaseUrl` (`CCAI_AUTH_BASE_URL`): Authentication API endpoint
+- `filesBaseUrl` (`CCAI_FILES_BASE_URL`): File upload API endpoint (for MMS)
+- `complianceBaseUrl` (`CCAI_COMPLIANCE_BASE_URL`): Brand/Campaign registration API endpoint
 
 ## Error Handling
 
