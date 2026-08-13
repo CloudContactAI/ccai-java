@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Java 17 or higher
+- Java 11 or higher
 - Maven 3.6+
 
 ## Configuration
