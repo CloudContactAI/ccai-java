@@ -37,7 +37,10 @@ public class BasicEmailExample {
                 "john.doe@example.com",
                 "Welcome to CCAI!",
                 "<html><body><h1>Hello John!</h1><p>Welcome to our service.</p></body></html>",
-                null  // optional text content
+                null,                              // textContent (optional)
+                "noreply@cloudcontactai.com",      // senderEmail
+                "noreply@cloudcontactai.com",      // replyEmail
+                "CloudContactAI"                   // senderName
             );
             System.out.println("Email sent! Campaign ID: " + response1.getCampaignId());
             System.out.println("Message ID: " + response1.getResponseId());
@@ -49,33 +52,27 @@ public class BasicEmailExample {
                 new EmailAccount("Jane", "Smith", "jane.smith@example.com", null, new HashMap<>())
             );
             
-            String htmlContent = """
-                <html>
-                <body>
-                    <h1>Newsletter</h1>
-                    <p>Here's your monthly newsletter with the latest updates!</p>
-                    <ul>
-                        <li>Feature 1: New dashboard</li>
-                        <li>Feature 2: Enhanced reporting</li>
-                        <li>Feature 3: Mobile app</li>
-                    </ul>
-                </body>
-                </html>
-                """;
-            
+            String htmlContent = "<html>"
+                + "<body>"
+                + "<h1>Newsletter</h1>"
+                + "<p>Here's your monthly newsletter with the latest updates!</p>"
+                + "<ul>"
+                + "<li>Feature 1: New dashboard</li>"
+                + "<li>Feature 2: Enhanced reporting</li>"
+                + "<li>Feature 3: Mobile app</li>"
+                + "</ul>"
+                + "</body>"
+                + "</html>";
+
             EmailResponse response2 = client.getEmail().send(
                 accounts,
                 "Monthly Newsletter",
                 htmlContent,
-                null  // optional text content
+                "noreply@cloudcontactai.com",      // senderEmail
+                "noreply@cloudcontactai.com",      // replyEmail
+                "CloudContactAI"                   // senderName
             );
             System.out.println("Bulk email sent! Campaign ID: " + response2.getCampaignId());
-
-            // Example 3: Get campaign status
-            System.out.println("\nGetting campaign status...");
-            var status = client.getEmail().getCampaignStatus(response1.getCampaignId());
-            System.out.println("Campaign Status: " + status.getStatus());
-            System.out.println("Sent Emails: " + status.getSentEmails());
 
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());

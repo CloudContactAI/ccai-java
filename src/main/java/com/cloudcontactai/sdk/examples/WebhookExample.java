@@ -5,6 +5,7 @@ import com.cloudcontactai.sdk.common.CCAIConfig;
 import com.cloudcontactai.sdk.webhook.WebhookEvent;
 import com.cloudcontactai.sdk.webhook.WebhookRequest;
 import com.cloudcontactai.sdk.webhook.WebhookResponse;
+import com.cloudcontactai.sdk.webhook.WebhookUpdateRequest;
 
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +80,6 @@ public class WebhookExample {
 
             // Example 6: Update webhook
             System.out.println("\nUpdating webhook...");
-            long webhookId = 105; //your saved webhook ID
             WebhookUpdateRequest updateRequest = new WebhookUpdateRequest(
                 webhookId,
                 "https://your-app.com/webhooks/ccai-updated",
@@ -90,7 +90,6 @@ public class WebhookExample {
 
             // Example 7: Delete a webhook
             System.out.println("\nDeleting webhook...");
-            Long webhookId = 105L; //your saved webhook ID
             WebhookResponse webhookDeleted = client.getWebhook().delete(webhookId);
             System.out.println("Webhook Url deleted: " + webhookDeleted.getUrl());
 
@@ -111,22 +110,20 @@ public class WebhookExample {
 
             // Example 9: Parse webhook event
             System.out.println("\nParsing webhook event...");
-            String eventPayload = """
-                {
-                    "eventType": "sms.sent",
-                    "data": {
-                        "id": 12345,
-                        "MessageStatus": "sent",
-                        "To": "+15551234567",
-                        "Message": "Hello World",
-                        "CustomData": "order-123",
-                        "ClientExternalId": "ext-456",
-                        "CampaignId": 789,
-                        "CampaignTitle": "Spring Sale"
-                    },
-                    "eventHash": "abc123def456ghi789jkl012mno345pq"
-                }
-                """;
+            String eventPayload = "{"
+                + "\"eventType\": \"sms.sent\","
+                + "\"data\": {"
+                + "\"id\": 12345,"
+                + "\"MessageStatus\": \"sent\","
+                + "\"To\": \"+15551234567\","
+                + "\"Message\": \"Hello World\","
+                + "\"CustomData\": \"order-123\","
+                + "\"ClientExternalId\": \"ext-456\","
+                + "\"CampaignId\": 789,"
+                + "\"CampaignTitle\": \"Spring Sale\""
+                + "},"
+                + "\"eventHash\": \"abc123def456ghi789jkl012mno345pq\""
+                + "}";
 
             WebhookEvent event = client.getWebhook().parseWebhookEvent(eventPayload);
             System.out.println("Event Type: " + event.getEventType());

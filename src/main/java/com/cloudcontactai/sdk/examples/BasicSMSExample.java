@@ -62,29 +62,30 @@ public class BasicSMSExample {
 
             // Example 3: Send SMS to multiple recipients with custom fields
             System.out.println("\nSending SMS whit custom fields...");
-            List<Account> accounts = Arrays.asList(
+            List<Account> customFieldAccounts = Arrays.asList(
                     new Account("John", "Doe", "+15551234567", Map.of("role", "teacher", "room", "Second floor, 3B room")),
                     new Account("Jane", "Smith", "+15559876543", Map.of("role", "teacher", "room", "First floor, 1A room"))
             );
 
             SMSResponse response3 = client.getSms().send(
-                    accounts,
+                    customFieldAccounts,
                     "Hello dear ${role}, your classroom is on ${room}.",
                     "Custom fields sample"
             );
             System.out.println("Bulk SMS with custom fields sent! ID: " + response3.getResponseId());
 
-            // Example 4: Send SMS with custom message data (this one is past to webhook events)
+            // Example 4: Send SMS with custom message data (this one is passed to webhook events)
             System.out.println("Sending SMS to with custom message data...");
-            SMSResponse response3 = client.getSms().sendSingle(
+            SMSResponse response4 = client.getSms().sendSingle(
                     "John",
                     "Doe",
                     "+15551234567",
                     "Hello from CCAI Java SDK! This is a test message with custom data.",
                     "Test Campaign",
-                    "{\"myAppCustomId\": \"3c1344d771eb48f99de6846746b2d4a0\"}"
+                    "{\"myAppCustomId\": \"3c1344d771eb48f99de6846746b2d4a0\"}",
+                    null
             );
-            System.out.println("SMS custom message data sent! ID: " + response1.getResponseId());
+            System.out.println("SMS custom message data sent! ID: " + response4.getResponseId());
         } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
