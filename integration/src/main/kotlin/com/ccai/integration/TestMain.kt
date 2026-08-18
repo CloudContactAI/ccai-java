@@ -16,9 +16,10 @@ import java.util.Base64
 import kotlin.system.exitProcess
 
 // ---------------------------------------------------------------------------
-// CCAI Java (Kotlin) SDK Integration Tests — 52 tests
+// CCAI Java (Kotlin) SDK Integration Tests — 54 tests
 // Covers: SMS (1-6), MMS (7-17), Email (18-22), Webhook (23-29), Contact (30-31),
-// Brands (32-36), Campaigns (37-42), ContactValidator (43-46), Negative cases (47-52)
+// Brands (32-36), Campaigns (37-42), ContactValidator (43-46), Negative cases (47-52),
+// SMS Templates (53-54)
 //
 // Test results use three states:
 //   PASS — the test ran and all assertions held
@@ -40,7 +41,7 @@ val requiredEnv = listOf(
     "CCAI_TEST_FIRST_NAME", "CCAI_TEST_LAST_NAME",
     "CCAI_TEST_FIRST_NAME_2", "CCAI_TEST_LAST_NAME_2",
     "CCAI_TEST_FIRST_NAME_3", "CCAI_TEST_LAST_NAME_3",
-    "WEBHOOK_URL"
+    "WEBHOOK_URL", "CCAI_TEST_TEMPLATE_ID"
 )
 
 val clientId   = System.getenv("CCAI_CLIENT_ID")        ?: ""
@@ -57,6 +58,7 @@ val first2     = System.getenv("CCAI_TEST_FIRST_NAME_2") ?: ""
 val last2      = System.getenv("CCAI_TEST_LAST_NAME_2")  ?: ""
 val first3     = System.getenv("CCAI_TEST_FIRST_NAME_3") ?: ""
 val last3      = System.getenv("CCAI_TEST_LAST_NAME_3")  ?: ""
+val templateId = System.getenv("CCAI_TEST_TEMPLATE_ID")?.toLongOrNull() ?: 0L
 
 // Unique per-run suffix so parallel SDK runs don't collide on the same webhook URL
 val runId = "java-${System.currentTimeMillis() / 1000}"
@@ -197,9 +199,12 @@ fun main() {
 
         runTest("06 SMS sendSingle with customData") {
             val res = client.sms.sendSingle(
-                first1, last1, phone1,
-                "Custom data test", "Java Test 06",
-                """{"source":"java-integration"}"""
+                firstName = first1,
+                lastName = last1,
+                phone = phone1,
+                message = "Custom data test",
+                title = "Java Test 06",
+                customData = """{"source":"java-integration"}"""
             )
             check(res.id.isNotBlank()) { "Empty id in response" }
         }
@@ -692,6 +697,19 @@ fun main() {
                 "nonexistent fileKey accepted", "Java Permissive 52", fakeKey
             )
             assertMmsResponse(res)
+        }
+
+        println("\n--- SMS Templates ---")
+
+        runTest("53 SMS sendWithTemplate") {
+            val accounts = listOf(SmsAccount(first1, last1, phone1), SmsAccount(first2, last2, phone2))
+            val res = client.sms.sendWithTemplate(accounts, templateId, "Java Template Test")
+            check(res.id.isNotBlank()) { "Empty id in response" }
+        }
+
+        runTest("54 SMS sendSingleWithTemplate") {
+            val res = client.sms.sendSingleWithTemplate(first1, last1, phone1, templateId, "Java Single Template Test")
+            check(res.id.isNotBlank()) { "Empty id in response" }
         }
     } finally {
         // -------------------------------------------------------------------
