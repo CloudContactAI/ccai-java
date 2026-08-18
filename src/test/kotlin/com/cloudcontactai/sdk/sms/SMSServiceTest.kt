@@ -102,8 +102,7 @@ class SMSServiceTest {
     }
     
     @Test
-    fun `should get campaign status`() {
-        val responseJson = """
+    fun `should get campaign status`() {        val responseJson = """
             {
                 "id": "campaign-123",
                 "status": "completed",
@@ -123,5 +122,60 @@ class SMSServiceTest {
         assertEquals("campaign-123", status.id)
         assertEquals("completed", status.status)
         assertEquals(10, status.sentMessages)
+    }
+
+    @Test
+    fun `should send with template id`() {
+        val responseJson = """
+            {
+                "id": "msg-tpl-1",
+                "campaignId": "campaign-tpl-1",
+                "status": "sent"
+            }
+        """.trimIndent()
+
+        mockServer.enqueue(MockResponse()
+            .setResponseCode(200)
+            .setBody(responseJson)
+            .addHeader("Content-Type", "application/json"))
+
+        val accounts = listOf(Account("John", "Doe", "+15551234567"))
+        val response = client.sms.sendWithTemplate(
+            accounts = accounts,
+            templateId = 12345L,
+            title = "Template Campaign"
+        )
+
+        assertEquals("campaign-tpl-1", response.campaignId)
+        assertEquals("msg-tpl-1", response.id)
+
+        val recorded = mockServer.takeRequest()
+        val body = recorded.body.readUtf8()
+        assertTrue(body.contains("\"templateId\":12345"))
+        assertTrue(body.contains("\"message\":\"\""))
+    }
+
+    @Test
+    fun `should send single with template id`() {
+        val responseJson = """{"id":"msg-tpl-2","campaignId":"campaign-tpl-2","status":"sent"}"""
+
+        mockServer.enqueue(MockResponse()
+            .setResponseCode(200)
+            .setBody(responseJson)
+            .addHeader("Content-Type", "application/json"))
+
+        val response = client.sms.sendSingleWithTemplate(
+            firstName = "Jane",
+            lastName = "Smith",
+            phone = "+15559876543",
+            templateId = 99L,
+            title = "Single Template Campaign"
+        )
+
+        assertEquals("msg-tpl-2", response.id)
+
+        val recorded = mockServer.takeRequest()
+        val body = recorded.body.readUtf8()
+        assertTrue(body.contains("\"templateId\":99"))
     }
 }
