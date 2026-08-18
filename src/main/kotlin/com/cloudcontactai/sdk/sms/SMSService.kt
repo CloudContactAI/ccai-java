@@ -4,7 +4,7 @@ import com.cloudcontactai.sdk.common.ApiClient
 import com.cloudcontactai.sdk.common.CCAIConfig
 
 class SMSService(private val config: CCAIConfig, private val apiClient: ApiClient) {
-    
+
     fun sendSingle(
         firstName: String,
         lastName: String,
@@ -17,7 +17,7 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
             lastName = lastName,
             phone = phone
         )
-        
+
         return send(listOf(account), message, title)
     }
 
@@ -56,7 +56,7 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
 
         return send(listOf(account), message, title, senderPhone)
     }
-    
+
     fun send(
         accounts: List<Account>,
         message: String,
@@ -71,9 +71,9 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
             senderPhone = senderPhone,
             templateId = templateId
         )
-        
+
         val headers = mapOf("ForceNewCampaign" to "false")
-        
+
         return apiClient.request(
             method = "POST",
             endpoint = "/clients/${config.clientId}/campaigns/direct",
@@ -103,7 +103,7 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
         val account = Account(firstName = firstName, lastName = lastName, phone = phone)
         return sendWithTemplate(listOf(account), templateId, title, senderPhone)
     }
-    
+
     fun getCampaignStatus(campaignId: String): SMSCampaignStatus {
         return apiClient.request(
             method = "GET",
