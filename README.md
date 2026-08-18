@@ -32,7 +32,7 @@ Add this dependency to your `pom.xml`:
 <dependency>
     <groupId>com.cloudcontactai</groupId>
     <artifactId>ccai-java-sdk</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -41,7 +41,7 @@ Add this dependency to your `pom.xml`:
 Add this dependency to your `build.gradle`:
 
 ```gradle
-implementation 'com.cloudcontactai:ccai-java-sdk:1.1.0'
+implementation 'com.cloudcontactai:ccai-java-sdk:1.2.0'
 ```
 
 ## Configuration
