@@ -182,6 +182,34 @@ println("Campaign sent with ID: ${campaignResponse.id}")
 ccai.close()
 ```
 
+#### SMS — Template-Controlled Accounts
+
+If an account has been configured to enforce template-only messaging, all campaigns must reference a pre-approved template ID. Sending a free-text message to such an account will result in a `422` error.
+
+```kotlin
+// Send to multiple recipients using a template
+val response = ccai.sms.sendWithTemplate(
+    accounts = accounts,
+    templateId = 12345L,   // the ID of the approved template
+    title = "My Campaign"
+)
+
+// Send to a single recipient using a template
+val response = ccai.sms.sendSingleWithTemplate(
+    firstName = "John",
+    lastName = "Doe",
+    phone = "+15551234567",
+    templateId = 12345L,
+    title = "My Campaign"
+)
+
+println("Campaign sent with ID: ${response.id}")
+
+ccai.close()
+```
+
+The message body is resolved server-side from the template. Variable substitution (e.g. `${firstName}`) is applied automatically using the recipient's account data.
+
 #### Email Usage
 
 ```kotlin

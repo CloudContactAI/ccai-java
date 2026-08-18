@@ -15,9 +15,10 @@ data class Account(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SMSCampaign(
     @JsonProperty("accounts") val accounts: List<Account>,
-    @JsonProperty("message") val message: String,
+    @JsonProperty("message") val message: String = "",
     @JsonProperty("title") val title: String,
-    @JsonProperty("senderPhone") val senderPhone: String? = null
+    @JsonProperty("senderPhone") val senderPhone: String? = null,
+    @JsonProperty("templateId") val templateId: Long? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
