@@ -61,13 +61,15 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
         accounts: List<Account>,
         message: String,
         title: String,
-        senderPhone: String? = null
+        senderPhone: String? = null,
+        templateId: Long? = null
     ): SMSResponse {
         val campaign = SMSCampaign(
             accounts = accounts,
             message = message,
             title = title,
-            senderPhone = senderPhone
+            senderPhone = senderPhone,
+            templateId = templateId
         )
         
         val headers = mapOf("ForceNewCampaign" to "false")
@@ -79,6 +81,27 @@ class SMSService(private val config: CCAIConfig, private val apiClient: ApiClien
             headers = headers,
             responseClass = SMSResponse::class.java
         )
+    }
+
+    fun sendWithTemplate(
+        accounts: List<Account>,
+        templateId: Long,
+        title: String,
+        senderPhone: String? = null
+    ): SMSResponse {
+        return send(accounts, "", title, senderPhone, templateId)
+    }
+
+    fun sendSingleWithTemplate(
+        firstName: String,
+        lastName: String,
+        phone: String,
+        templateId: Long,
+        title: String,
+        senderPhone: String? = null
+    ): SMSResponse {
+        val account = Account(firstName = firstName, lastName = lastName, phone = phone)
+        return sendWithTemplate(listOf(account), templateId, title, senderPhone)
     }
     
     fun getCampaignStatus(campaignId: String): SMSCampaignStatus {
