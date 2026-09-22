@@ -19,7 +19,7 @@ import kotlin.system.exitProcess
 // CCAI Java (Kotlin) SDK Integration Tests — 54 tests
 // Covers: SMS (1-6), MMS (7-17), Email (18-22), Webhook (23-29), Contact (30-31),
 // Brands (32-36), Campaigns (37-42), ContactValidator (43-46), Negative cases (47-52),
-// SMS Templates (53-54)
+// SMS Templates (53-54, dedicated template account)
 //
 // Test results use three states:
 //   PASS — the test ran and all assertions held
@@ -41,7 +41,7 @@ val requiredEnv = listOf(
     "CCAI_TEST_FIRST_NAME", "CCAI_TEST_LAST_NAME",
     "CCAI_TEST_FIRST_NAME_2", "CCAI_TEST_LAST_NAME_2",
     "CCAI_TEST_FIRST_NAME_3", "CCAI_TEST_LAST_NAME_3",
-    "WEBHOOK_URL", "CCAI_TEST_TEMPLATE_ID"
+    "WEBHOOK_URL"
 )
 
 val clientId   = System.getenv("CCAI_CLIENT_ID")        ?: ""
@@ -58,7 +58,9 @@ val first2     = System.getenv("CCAI_TEST_FIRST_NAME_2") ?: ""
 val last2      = System.getenv("CCAI_TEST_LAST_NAME_2")  ?: ""
 val first3     = System.getenv("CCAI_TEST_FIRST_NAME_3") ?: ""
 val last3      = System.getenv("CCAI_TEST_LAST_NAME_3")  ?: ""
-val templateId = System.getenv("CCAI_TEST_TEMPLATE_ID")?.toLongOrNull() ?: 0L
+val templateId = System.getenv("CCAI_TEST_TEMPLATE_ID")?.toLongOrNull()
+val templateClientId = System.getenv("CCAI_TEMPLATE_CLIENT_ID")
+val templateApiKey = System.getenv("CCAI_TEMPLATE_API_KEY")
 
 // Unique per-run suffix so parallel SDK runs don't collide on the same webhook URL
 val runId = "java-${System.currentTimeMillis() / 1000}"
@@ -701,14 +703,29 @@ fun main() {
 
         println("\n--- SMS Templates ---")
 
+        // Templates run against a separate, dedicated account (CCAI_TEMPLATE_CLIENT_ID/
+        // API_KEY): the main test account can't have template usage configured, since
+        // that starts requiring a templateId on every campaign — including the plain
+        // SMS/MMS/Email sends tested above.
+        fun templateClient(): CCAIClient {
+            if (templateClientId.isNullOrBlank() || templateApiKey.isNullOrBlank() || templateId == null) {
+                skipTest("CCAI_TEMPLATE_CLIENT_ID/CCAI_TEMPLATE_API_KEY/CCAI_TEST_TEMPLATE_ID not set")
+            }
+            return CCAIClient(CCAIConfig(
+                clientId = templateClientId,
+                apiKey = templateApiKey,
+                useTestEnvironment = System.getenv("CCAI_BASE_URL") == null
+            ))
+        }
+
         runTest("53 SMS sendWithTemplate") {
             val accounts = listOf(SmsAccount(first1, last1, phone1), SmsAccount(first2, last2, phone2))
-            val res = client.sms.sendWithTemplate(accounts, templateId, "Java Template Test")
+            val res = templateClient().sms.sendWithTemplate(accounts, templateId!!, "Java Template Test")
             check(res.id.isNotBlank()) { "Empty id in response" }
         }
 
         runTest("54 SMS sendSingleWithTemplate") {
-            val res = client.sms.sendSingleWithTemplate(first1, last1, phone1, templateId, "Java Single Template Test")
+            val res = templateClient().sms.sendSingleWithTemplate(first1, last1, phone1, templateId!!, "Java Single Template Test")
             check(res.id.isNotBlank()) { "Empty id in response" }
         }
     } finally {
